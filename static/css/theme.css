@@ -1,5 +1,5 @@
 /* =========================================================================
-   Nexora — tema dark + azul · clean & moderno
+   L3D Labz — tema claro/escuro + verde (paleta Luigi)
    Tokens · layout · componentes · animações. Mobile-first, sem framework.
    ========================================================================= */
 
@@ -17,15 +17,16 @@
   --text-muted:    #98a2b8;
   --text-dim:      #5e6a82;
 
-  /* acento — azul refinado, uso contido */
-  --accent:        #5b8def;
-  --accent-2:      #82a8f7;
-  --accent-strong: #3f6cd6;
-  --accent-soft:   #14213f;
-  --accent-glow:   rgba(91, 141, 239, 0.26);
+  /* acento — verde Luigi, uso contido */
+  --accent:        #2FA84F;
+  --accent-2:      #43C266;
+  --accent-strong: #1E8C3E;
+  --accent-soft:   #13251A;
+  --accent-glow:   rgba(47, 168, 79, 0.26);
+  --accent-blue:   #2BA6E0;
 
   --success:       #46c08a;
-  --danger:        #e2706f;
+  --danger:        #E23B3B;
   --warning:       #e3b24a;
 
   --radius:        16px;
@@ -54,8 +55,8 @@ body {
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   background-image:
-    radial-gradient(900px 420px at 88% -10%, rgba(91, 141, 239, 0.10), transparent 62%),
-    radial-gradient(680px 380px at -8% 2%, rgba(91, 141, 239, 0.05), transparent 58%);
+    radial-gradient(900px 420px at 88% -10%, rgba(47, 168, 79, 0.10), transparent 62%),
+    radial-gradient(680px 380px at -8% 2%, rgba(47, 168, 79, 0.05), transparent 58%);
   background-attachment: fixed;
 }
 
@@ -612,27 +613,28 @@ h1, h2, h3 { font-family: var(--font-display); line-height: 1.1; margin: 0 0 .4e
    Tema claro + ajustes de carrossel
    ========================================================================= */
 [data-theme="light"] {
-  --bg:            #f3f6fc;
-  --bg-soft:       #ffffff;
-  --bg-card:       #ffffff;
-  --bg-elevated:   #eef2fa;
-  --border:        #e0e6f1;
-  --border-soft:   #eaeef7;
-  --text:          #161c28;
-  --text-muted:    #54607a;
-  --text-dim:      #8a93a8;
-  --accent:        #2f68d8;
-  --accent-2:      #2f68d8;
-  --accent-strong: #2453b6;
-  --accent-soft:   #e7eefc;
-  --accent-glow:   rgba(47, 104, 216, 0.20);
+  --bg:            #FFFFFF;
+  --bg-soft:       #F6F8F5;
+  --bg-card:       #FFFFFF;
+  --bg-elevated:   #F1F4EF;
+  --border:        #E3E8E0;
+  --border-soft:   #EEF1EB;
+  --text:          #16201A;
+  --text-muted:    #5C6B60;
+  --text-dim:      #9AA89E;
+  --accent:        #2FA84F;
+  --accent-2:      #1E8C3E;
+  --accent-strong: #1E8C3E;
+  --accent-soft:   #E7F6EC;
+  --accent-glow:   rgba(47, 168, 79, 0.20);
+  --accent-blue:   #2BA6E0;
   --shadow:        0 16px 40px -26px rgba(23, 38, 80, 0.28);
   --shadow-soft:   0 6px 20px -16px rgba(23, 38, 80, 0.22);
 }
 [data-theme="light"] body {
   background-image:
-    radial-gradient(900px 420px at 88% -10%, rgba(47, 104, 216, 0.08), transparent 62%),
-    radial-gradient(680px 380px at -8% 2%, rgba(47, 104, 216, 0.05), transparent 58%);
+    radial-gradient(900px 420px at 88% -10%, rgba(47, 168, 79, 0.08), transparent 62%),
+    radial-gradient(680px 380px at -8% 2%, rgba(47, 168, 79, 0.05), transparent 58%);
 }
 [data-theme="light"] .site-header { background: rgba(255, 255, 255, 0.78); }
 [data-theme="light"] .site-header.scrolled { background: rgba(255, 255, 255, 0.92); }

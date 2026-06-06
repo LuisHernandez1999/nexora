@@ -216,7 +216,7 @@ REST_FRAMEWORK = {
 # Configurações de marca (usadas no context processor / templates)
 # ---------------------------------------------------------------------------
 SITE = {
-    "name": "Nexora",
-    "tagline": "Impressão 3D para quem é nerd ao cubo",
-    "accent": "#3B82F6",  # azul
+    "name": "L3D Labz",
+    "tagline": "Impressão 3D com acabamento de laboratório.",
+    "accent": "#2FA84F",  # verde Luigi
 }
