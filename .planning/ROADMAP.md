@@ -40,7 +40,8 @@ Decimal phases appear between their surrounding integers in numeric order.
   1. O `Product` tem um campo para o arquivo de exibição 3D (GLB/glTF) e a migração correspondente aplica sem erro.
   2. O `Product` tem um campo para o arquivo imprimível (STL) e a migração correspondente aplica sem erro.
   3. O administrador abre um produto no Django admin, sobe um GLB e um STL, salva, e os arquivos ficam associados ao produto e disponíveis para uso pelas camadas de leitura/mapper.
-**Plans**: TBD
+**Plans**: 1 plan
+- [ ] 02-01-PLAN.md — Campos GLB/STL no `Product` (FileFields + validators + propriedades), migração 0003, fieldset admin "Modelos 3D" e exposição no `ProductMapper.to_detail`
 
 ### Phase 3: Visualizador 3D & Galeria
 **Goal**: O cliente visualiza e manipula o modelo 3D do produto direto no navegador, baixa o STL imprimível, e descobre os produtos com modelo por uma galeria dedicada — com fallback gracioso quando não há modelo.
@@ -61,5 +62,5 @@ Phases execute in numeric order: 1 → 2 → 3 (Fase 1 e Fase 2 são independent
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Rebrand & UI Minimalista | 0/2 | Planned | - |
-| 2. Fundação de Dados 3D | 0/TBD | Not started | - |
+| 2. Fundação de Dados 3D | 0/1 | Planned | - |
 | 3. Visualizador 3D & Galeria | 0/TBD | Not started | - |
