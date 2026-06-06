@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 02-01-PLAN.md
-last_updated: "2026-06-06T12:59:46.977Z"
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-06-06T13:13:52.285Z"
 progress:
   total_phases: 3
-  completed_phases: 2
-  total_plans: 3
-  completed_plans: 3
+  completed_phases: 3
+  total_plans: 5
+  completed_plans: 5
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-05)
 
 **Core value:** O cliente consegue visualizar o modelo 3D do produto de forma intuitiva num site bonito e minimalista com a marca L3D Labz.
-**Current focus:** Phase 02 — funda-o-de-dados-3d
+**Current focus:** Phase 03 — visualizador-3d-galeria
 
 ## Current Position
 
-Phase: 02 (funda-o-de-dados-3d) — EXECUTING
-Plan: 1 of 1
+Phase: 03 (visualizador-3d-galeria) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -49,6 +49,8 @@ Plan: 1 of 1
 | Phase 01 P01 | 2 | 2 tasks | 13 files |
 | Phase 01 P02 | 2 | 2 tasks | 2 files |
 | Phase 02 P01 | 1 | 2 tasks | 4 files |
+| Phase 03-visualizador-3d-galeria P01 | 1 | 2 tasks | 2 files |
+| Phase 03 P02 | 1 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -66,6 +68,9 @@ Recent decisions affecting current work:
 - [Phase 01]: .grad-text minimalista usa verde solido var(--accent) (sem gradiente/animacao); 5 azuis literais rgba(59,130,246) convertidos para verde.
 - [Phase 02]: Validação de upload 3D por extensão (FileExtensionValidator: glb/gltf e stl); MIME/tamanho ficou deferido.
 - [Phase 02]: Campos 3D expostos só em ProductMapper.to_detail; to_dict (card/listagem) inalterado.
+- [Phase 03-visualizador-3d-galeria]: [Phase 03] AR incluído no model-viewer (ar/ar-modes/ar-scale): 2 atributos, AR Android grátis do GLB, no-op no desktop/iOS.
+- [Phase 03-visualizador-3d-galeria]: [Phase 03] model-viewer fixado @4.3.1 via CDN ES module, carregado por página em extra_js gated por has_3d_model; sem nomodule.
+- [Phase 03]: Galeria 'Modelos 3D' via with_3d (sem cache) → gallery → models_3d; cards linkam ao detalhe, sem viewer por card.
 
 ### Pending Todos
 
@@ -84,6 +89,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-06T12:59:36.174Z
-Stopped at: Completed 02-01-PLAN.md
+Last session: 2026-06-06T13:13:50.663Z
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None

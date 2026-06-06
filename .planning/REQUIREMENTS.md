@@ -32,10 +32,10 @@ Requisitos para esta milestone (rebrand + visualizador 3D). Cada um mapeia para 
 
 ### Visualizador 3D (Viewer)
 
-- [ ] **VIEW-01**: Na página de detalhe do produto, quando há GLB, o cliente vê um visualizador 3D interativo e consegue rotacionar, dar zoom e mover (pan) de forma intuitiva
-- [ ] **VIEW-02**: Quando o produto não tem GLB, a área de mídia faz fallback gracioso para a imagem atual (sem quebrar layout)
-- [ ] **VIEW-03**: Quando há STL, o cliente consegue baixar o arquivo STL a partir da página do produto
-- [ ] **VIEW-04**: Existe uma aba/galeria de "Modelos 3D" acessível pela navegação, listando os produtos que têm modelo 3D para visualização
+- [x] **VIEW-01**: Na página de detalhe do produto, quando há GLB, o cliente vê um visualizador 3D interativo e consegue rotacionar, dar zoom e mover (pan) de forma intuitiva
+- [x] **VIEW-02**: Quando o produto não tem GLB, a área de mídia faz fallback gracioso para a imagem atual (sem quebrar layout)
+- [x] **VIEW-03**: Quando há STL, o cliente consegue baixar o arquivo STL a partir da página do produto
+- [x] **VIEW-04**: Existe uma aba/galeria de "Modelos 3D" acessível pela navegação, listando os produtos que têm modelo 3D para visualização
 
 ## v2 Requirements
 
@@ -73,10 +73,10 @@ Excluídos explicitamente para evitar scope creep.
 | MODEL-01 | Phase 2 | Complete |
 | MODEL-02 | Phase 2 | Complete |
 | MODEL-03 | Phase 2 | Complete |
-| VIEW-01 | Phase 3 | Pending |
-| VIEW-02 | Phase 3 | Pending |
-| VIEW-03 | Phase 3 | Pending |
-| VIEW-04 | Phase 3 | Pending |
+| VIEW-01 | Phase 3 | Complete |
+| VIEW-02 | Phase 3 | Complete |
+| VIEW-03 | Phase 3 | Complete |
+| VIEW-04 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 15 total
