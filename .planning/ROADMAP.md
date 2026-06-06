@@ -29,7 +29,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. O cliente alterna entre tema claro e escuro pelo toggle existente e a escolha persiste entre páginas e recargas (chave localStorage migrada sem quebrar persistência).
   5. A home e as páginas-chave (catálogo e detalhe) têm tratamento minimalista (mais espaço em branco, menos ornamento) mantendo as seções essenciais.
 **Plans**: 2 plans
-- [ ] 01-01-PLAN.md — Marca L3D Labz: paleta Luigi (dark+light), emblema "L", wordmark, migração da chave de tema, strings
+- [x] 01-01-PLAN.md — Marca L3D Labz: paleta Luigi (dark+light), emblema "L", wordmark, migração da chave de tema, strings
 - [ ] 01-02-PLAN.md — UI minimalista: home, catálogo e detalhe (respiro + verde, sem reescrever o CSS)
 
 ### Phase 2: Fundação de Dados 3D

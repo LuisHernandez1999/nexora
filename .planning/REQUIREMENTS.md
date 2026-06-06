@@ -9,15 +9,15 @@ Requisitos para esta milestone (rebrand + visualizador 3D). Cada um mapeia para 
 
 ### Marca (Brand)
 
-- [ ] **BRAND-01**: Todas as ocorrências de "Nexora" são substituídas por "L3D Labz" (title, meta description, copy, footer, dict `SITE`, seed/admin) — nenhum "Nexora" visível resta
-- [ ] **BRAND-02**: O navbar exibe o wordmark "L3D Labz" + um logo "L" em SVG inline (estilo emblema do boné do Luigi), substituindo o logo `koala`
-- [ ] **BRAND-03**: A chave de tema em localStorage migra de `nexora-theme` para uma chave L3D em ambos os arquivos (`base.html`, `app.js`) sem quebrar a persistência do tema
+- [x] **BRAND-01**: Todas as ocorrências de "Nexora" são substituídas por "L3D Labz" (title, meta description, copy, footer, dict `SITE`, seed/admin) — nenhum "Nexora" visível resta
+- [x] **BRAND-02**: O navbar exibe o wordmark "L3D Labz" + um logo "L" em SVG inline (estilo emblema do boné do Luigi), substituindo o logo `koala`
+- [x] **BRAND-03**: A chave de tema em localStorage migra de `nexora-theme` para uma chave L3D em ambos os arquivos (`base.html`, `app.js`) sem quebrar a persistência do tema
 
 ### Tema & Cores (Theme)
 
-- [ ] **THEME-01**: A paleta inspirada no Luigi (verde primário, branco, azul de acento) é aplicada via tokens CSS no tema escuro
-- [ ] **THEME-02**: A mesma identidade é calibrada e legível no tema claro (light/clean como estética base)
-- [ ] **THEME-03**: O cliente alterna entre tema claro e escuro pelo toggle existente e a escolha persiste entre páginas/recargas
+- [x] **THEME-01**: A paleta inspirada no Luigi (verde primário, branco, azul de acento) é aplicada via tokens CSS no tema escuro
+- [x] **THEME-02**: A mesma identidade é calibrada e legível no tema claro (light/clean como estética base)
+- [x] **THEME-03**: O cliente alterna entre tema claro e escuro pelo toggle existente e a escolha persiste entre páginas/recargas
 
 ### Interface Minimalista (UI)
 
@@ -62,12 +62,12 @@ Excluídos explicitamente para evitar scope creep.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BRAND-01 | Phase 1 | Pending |
-| BRAND-02 | Phase 1 | Pending |
-| BRAND-03 | Phase 1 | Pending |
-| THEME-01 | Phase 1 | Pending |
-| THEME-02 | Phase 1 | Pending |
-| THEME-03 | Phase 1 | Pending |
+| BRAND-01 | Phase 1 | Complete |
+| BRAND-02 | Phase 1 | Complete |
+| BRAND-03 | Phase 1 | Complete |
+| THEME-01 | Phase 1 | Complete |
+| THEME-02 | Phase 1 | Complete |
+| THEME-03 | Phase 1 | Complete |
 | UI-01 | Phase 1 | Pending |
 | UI-02 | Phase 1 | Pending |
 | MODEL-01 | Phase 2 | Pending |
