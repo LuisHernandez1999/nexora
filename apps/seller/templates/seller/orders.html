@@ -1,0 +1,36 @@
+{% extends "seller/base.html" %}
+{% block title %}Pedidos{% endblock %}
+{% block content %}
+<section class="section" style="padding-top:1.8rem">
+  <div class="container">
+    <div class="page-head reveal">
+      <span class="eyebrow">Painel · {{ request.user.store_name|default:"Sua loja" }}</span>
+      <h1>Pedidos</h1>
+      <p>Todos os pedidos feitos na sua loja, do mais recente ao mais antigo.</p>
+    </div>
+
+    {% if orders %}
+      <div class="order-list">
+        {% for o in orders %}
+          <a href="{{ o.url }}" class="order-card reveal" style="--i:{{ forloop.counter0 }}">
+            <div>
+              <div class="onum">{{ o.number }}</div>
+              <div class="ometa">{{ o.customer }} · {{ o.item_count }} item{{ o.item_count|pluralize:"s,ns" }} · {{ o.city }}/{{ o.state }} · {{ o.created_at|date:"d/m/Y" }} · {{ o.payment_label }}</div>
+            </div>
+            <div class="oright">
+              <span class="status-badge {{ o.tone }}">{{ o.status_label }}</span>
+              <strong>{{ o.total_display }}</strong>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state reveal">
+        <div class="ph"><svg class="icon"><use href="#i-package"></use></svg></div>
+        <h3>Nenhum pedido ainda</h3>
+        <p class="text-muted">Os pedidos dos clientes vão aparecer aqui assim que chegarem.</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

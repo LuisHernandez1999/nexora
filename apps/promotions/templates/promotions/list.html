@@ -1,86 +1,158 @@
 {% extends "base.html" %}
 {% block title %}Promoções · {{ SITE.name }}{% endblock %}
 {% block content %}
-<section class="section">
+<section class="section" style="padding-top:1.6rem">
   <div class="container">
 
-    <!-- carrossel de promoções -->
-    {% if promotions %}
-    <div class="carousel reveal" style="margin-bottom:2.6rem">
-      <div class="carousel-track">
-        {% for promo in promotions %}
-          <div class="slide">
-            <div class="bg"><img src="{{ promo.image_url }}" alt=""
-                 onerror="this.onerror=null;this.src='https://picsum.photos/seed/promopage{{ forloop.counter }}/1200/520'"></div>
-            <div class="content">
-              <span class="eyebrow">{{ promo.badge }}</span>
-              <h2 class="section-title">{{ promo.title }}</h2>
-              <p class="text-muted">{{ promo.subtitle }}</p>
-              <div class="mt-2"><a href="{{ promo.cta_url }}" class="btn btn-primary">{{ promo.cta_label }} <svg class="icon icon-arrow"><use href="#i-arrow-right"></use></svg></a></div>
+    <!-- ===================== INTRO ===================== -->
+    <div class="page-head reveal">
+      <span class="eyebrow">Ofertas {{ SITE.name }}</span>
+      <h1>Promoções da semana <span class="ph-badge">até 25% OFF</span></h1>
+      <p>Figuras, gadgets, decoração e tabacaria com preço de saldo — aproveite enquanto durarem os estoques.</p>
+    </div>
+
+    <!-- ===================== BUSCA ===================== -->
+    <form method="get" action="{% url 'catalog:product_list' %}" class="search-bar reveal">
+      <input type="search" name="q" placeholder="Buscar action figures, gadgets, réplicas…" aria-label="Buscar produtos">
+      <button class="btn btn-primary search-go" type="submit" aria-label="Buscar"><svg class="icon"><use href="#i-search"></use></svg></button>
+    </form>
+
+    <!-- ===================== CONTEÚDO + SIDEBAR ===================== -->
+    <div class="shop-layout" style="margin-top:2rem" id="ofertas">
+
+      <!-- principal -->
+      <div>
+        <!-- flash sale -->
+        {% if on_sale %}
+        <div class="reveal flash-block">
+          <div class="block-head">
+            <span class="block-title">Flash Sale</span>
+            <div class="countdown" id="flashCountdown" aria-label="Tempo restante da oferta">
+              <span class="cd-box"><span data-cd="h">00</span><span class="cd-lbl">hrs</span></span>
+              <span class="cd-sep">:</span>
+              <span class="cd-box"><span data-cd="m">00</span><span class="cd-lbl">min</span></span>
+              <span class="cd-sep">:</span>
+              <span class="cd-box"><span data-cd="s">00</span><span class="cd-lbl">seg</span></span>
             </div>
           </div>
-        {% endfor %}
-      </div>
-      {% if promotions|length > 1 %}
-        <button class="carousel-arrow prev" data-carousel-prev aria-label="Anterior"><svg class="icon"><use href="#i-chevron-left"></use></svg></button>
-        <button class="carousel-arrow next" data-carousel-next aria-label="Próximo"><svg class="icon"><use href="#i-chevron-right"></use></svg></button>
-        <div class="carousel-dots" data-carousel-dots></div>
-      {% endif %}
-    </div>
-    {% endif %}
 
-    <!-- busca -->
-    <div class="search-hero reveal">
-      <span class="eyebrow eyebrow-center">Ofertas Nexora</span>
-      <h1 style="max-width:20ch;margin-inline:auto">Achados com desconto que valem a impressão</h1>
-      <form method="get" action="{% url 'catalog:product_list' %}">
-        <div class="search-bar">
-          <svg class="icon"><use href="#i-search"></use></svg>
-          <input type="search" name="q" placeholder="Buscar nas ofertas e no catálogo…">
-          <button class="btn btn-primary" type="submit">Buscar</button>
-        </div>
-      </form>
-    </div>
-
-    <!-- cards de promoção -->
-    {% if promotions %}
-    <div class="section-head reveal" style="margin-top:2.6rem">
-      <div><span class="eyebrow">Campanhas no ar</span><h2 class="section-title">Promoções da casa</h2></div>
-    </div>
-    <div class="promo-grid">
-      {% for promo in promotions %}
-        <a href="{{ promo.cta_url }}" class="promo-card reveal" style="--i:{{ forloop.counter0 }}">
-          <span class="promo-tag">{{ promo.badge }}</span>
-          <div class="bg"><img src="{{ promo.image_url }}" alt=""
-               onerror="this.onerror=null;this.src='https://picsum.photos/seed/pcard{{ forloop.counter }}/600/400'"></div>
-          <div class="content">
-            <h3>{{ promo.title }}</h3>
-            <p class="text-muted" style="font-size:.9rem">{{ promo.subtitle }}</p>
+          <!-- infos rápidas -->
+          <div class="quick-info">
+            <div class="qi"><span class="qi-ico"><svg class="icon"><use href="#i-bolt"></use></svg></span><div><b>{{ on_sale|length }} ofertas</b><span>ativas agora</span></div></div>
+            <div class="qi"><span class="qi-ico"><svg class="icon"><use href="#i-tag"></use></svg></span><div><b>até 25% OFF</b><span>preço de saldo</span></div></div>
+            <div class="qi"><span class="qi-ico"><svg class="icon"><use href="#i-delivery"></use></svg></span><div><b>frete grátis</b><span>acima de R$ 199</span></div></div>
+            <div class="qi"><span class="qi-ico"><svg class="icon"><use href="#i-pix"></use></svg></span><div><b>+10% no PIX</b><span>desconto extra</span></div></div>
           </div>
-        </a>
-      {% endfor %}
-    </div>
-    {% endif %}
 
-    <!-- produtos em oferta -->
-    {% if on_sale %}
-    <div class="section-head reveal" style="margin-top:3rem">
-      <div><span class="eyebrow">Preço baixo</span><h2 class="section-title">Produtos em oferta</h2></div>
-      <a href="{% url 'catalog:product_list' %}?sort=popular" class="link">Ver catálogo <svg class="icon icon-arrow"><use href="#i-arrow-right"></use></svg></a>
-    </div>
-    <div class="product-grid">
-      {% for product in on_sale %}
-        <div class="reveal" style="--i:{{ forloop.counter0 }}">{% include "catalog/partials/product_card.html" with product=product %}</div>
-      {% endfor %}
-    </div>
-    {% else %}
-      <div class="empty-state">
-        <div class="ph"><svg class="icon"><use href="#i-tag"></use></svg></div>
-        <h3>Sem ofertas no momento</h3>
-        <p class="text-muted">Volte logo — toda semana tem novidade saindo da impressora.</p>
-        <a href="{% url 'catalog:product_list' %}" class="btn btn-primary mt-2">Ver catálogo</a>
+          <div class="product-grid">
+            {% for product in on_sale|slice:":3" %}
+              <div class="reveal" style="--i:{{ forloop.counter0 }}">{% include "catalog/partials/product_card.html" with product=product %}</div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- mais ofertas (sem repetir o flash sale) -->
+        <div class="reveal" style="margin-top:2.4rem">
+          <div class="block-head">
+            <span class="block-title">Mais ofertas</span>
+            <a href="{% url 'catalog:product_list' %}?sort=popular" class="link">Ver catálogo <svg class="icon icon-arrow"><use href="#i-arrow-right"></use></svg></a>
+          </div>
+          {% if on_sale|slice:"3:" %}
+            <div class="product-grid">
+              {% for product in on_sale|slice:"3:" %}
+                <div class="reveal" style="--i:{{ forloop.counter0 }}">{% include "catalog/partials/product_card.html" with product=product %}</div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="empty-state">
+              <div class="ph"><svg class="icon"><use href="#i-tag"></use></svg></div>
+              <h3>Sem ofertas no momento</h3>
+              <p class="text-muted">Volte logo — toda semana tem novidade saindo da impressora.</p>
+              <a href="{% url 'catalog:product_list' %}" class="btn btn-primary mt-2">Ver catálogo</a>
+            </div>
+          {% endif %}
+        </div>
       </div>
-    {% endif %}
+
+      <!-- sidebar -->
+      <aside class="shop-aside">
+        <!-- cupons -->
+        {% if coupons %}
+        <div class="aside-card">
+          <h3><svg class="icon"><use href="#i-tag"></use></svg> Cupons da casa</h3>
+          <div class="coupon-mini-list">
+            {% for c in coupons %}
+              <div class="coupon-mini">
+                <span class="cm-off">{{ c.off }}</span>
+                <span class="cm-code">{{ c.code }}</span>
+                <span class="cm-min">{{ c.min }}</span>
+              </div>
+            {% endfor %}
+          </div>
+          <p class="text-dim" style="font-size:.78rem;margin:.9rem 0 0">Cole o código no carrinho antes de finalizar.</p>
+        </div>
+        {% endif %}
+
+        <!-- mais vendidos -->
+        {% if best_sellers %}
+        <div class="aside-card">
+          <h3><svg class="icon"><use href="#i-star"></use></svg> Mais vendidos</h3>
+          <div class="sell-list">
+            {% for p in best_sellers %}
+              <a href="{{ p.url }}" class="sell-item">
+                <span class="sell-rank">{{ forloop.counter }}</span>
+                <span class="si-thumb" style="--acc:{{ p.accent }}">
+                  <span class="si-mono" style="--acc:{{ p.accent }}">{{ p.monogram }}</span>
+                </span>
+                <span class="si-info">
+                  <span class="si-cat">{{ p.category_name }}</span>
+                  <span class="si-name">{{ p.name }}</span>
+                  <span class="si-price">{{ p.price_display }}</span>
+                </span>
+              </a>
+            {% endfor %}
+          </div>
+          <a href="{% url 'catalog:product_list' %}?sort=popular" class="aside-foot-link">Ver todos os mais vendidos <svg class="icon icon-arrow"><use href="#i-arrow-right"></use></svg></a>
+        </div>
+        {% endif %}
+      </aside>
+    </div>
   </div>
 </section>
+
+<!-- ===================== BANNER FINAL ===================== -->
+<section class="section">
+  <div class="container">
+    <div class="shop-cta reveal">
+      <span class="eyebrow eyebrow-center">{{ SITE.name }}</span>
+      <h2>Oferta boa não espera</h2>
+      <p>Aproveite os descontos da semana e garanta suas peças favoritas — e o que faltar, a gente imprime sob encomenda.</p>
+      <div class="tag-row">
+        <a href="{% url 'catalog:product_list' %}" class="btn btn-primary">Ver catálogo</a>
+        <a href="{% url 'core:about' %}" class="btn btn-ghost">Sobre a loja</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function(){
+  var box = document.getElementById('flashCountdown');
+  if(!box) return;
+  var target = new Date();
+  target.setHours(target.getHours() + 6, target.getMinutes(), target.getSeconds(), 0);
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function tick(){
+    var diff = Math.max(0, target - new Date());
+    var h = Math.floor(diff/3600000), m = Math.floor(diff%3600000/60000), s = Math.floor(diff%60000/1000);
+    box.querySelector('[data-cd="h"]').textContent = pad(h);
+    box.querySelector('[data-cd="m"]').textContent = pad(m);
+    box.querySelector('[data-cd="s"]').textContent = pad(s);
+  }
+  tick(); setInterval(tick, 1000);
+})();
+</script>
 {% endblock %}

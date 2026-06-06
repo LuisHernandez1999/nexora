@@ -67,6 +67,8 @@ class CatalogService(BaseService):
             "current_sort": sort,
             "query": query or "",
             "promotions": PromotionService.list_active_promotions(limit=5),
+            "flash_sale": ProductMapper.to_list(ProductQuery.on_sale(8)),
+            "best_sellers": ProductMapper.to_list(ProductQuery.featured(6)),
         }
 
     # ---- detalhe ----
