@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Modelos 3D · {{ SITE.name }}{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="search-hero reveal">
+      <span class="eyebrow eyebrow-center">Visualização 3D</span>
+      <h1 style="max-width:18ch;margin-inline:auto">Modelos 3D</h1>
+      <p class="text-muted">Produtos com modelo 3D para girar, dar zoom e explorar antes de comprar.</p>
+    </div>
+
+    {% if products %}
+      <div class="product-grid mt-2">
+        {% for product in products %}
+          <div class="reveal" style="--i:{{ forloop.counter0 }}">{% include "catalog/partials/product_card.html" with product=product %}</div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="ph"><svg class="icon"><use href="#i-box"></use></svg></div>
+        <h3>Nenhum modelo 3D ainda</h3>
+        <p class="text-muted">Em breve teremos produtos com visualização 3D por aqui.</p>
+        <a href="{% url 'catalog:product_list' %}" class="btn btn-ghost mt-2">Ver o catálogo</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
