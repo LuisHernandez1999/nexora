@@ -91,7 +91,7 @@ COUPONS = [
 
 
 class Command(BaseCommand):
-    help = "Popula o banco com dados de demonstração da Nexora."
+    help = "Popula o banco com dados de demonstração da L3D Labz."
 
     def handle(self, *args, **options):
         cats: dict[str, Category] = {}
