@@ -11,10 +11,18 @@
 
     <div class="product-detail mt-2">
       <div class="detail-media reveal">
-        <span class="thumb-mono" style="--acc:{{ product.accent }}">{{ product.monogram }}</span>
-        {% if product.image_url %}
-          <img src="{{ product.image_url }}" alt="{{ product.name }}"
-               onerror="this.onerror=null;this.src='https://picsum.photos/seed/{{ product.slug }}/800/800'">
+        {% if product.has_3d_model %}
+          <model-viewer src="{{ product.model_3d_url }}" poster="{{ product.image_url }}"
+                        alt="Modelo 3D de {{ product.name }}"
+                        camera-controls auto-rotate touch-action="pan-y"
+                        shadow-intensity="1" loading="lazy" reveal="auto"
+                        ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto"></model-viewer>
+        {% else %}
+          <span class="thumb-mono" style="--acc:{{ product.accent }}">{{ product.monogram }}</span>
+          {% if product.image_url %}
+            <img src="{{ product.image_url }}" alt="{{ product.name }}"
+                 onerror="this.onerror=null;this.src='https://picsum.photos/seed/{{ product.slug }}/800/800'">
+          {% endif %}
         {% endif %}
       </div>
 
@@ -75,4 +83,11 @@
     {% endif %}
   </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+  {% if product.has_3d_model %}
+  <script type="module"
+          src="https://cdn.jsdelivr.net/npm/@google/model-viewer@4.3.1/dist/model-viewer.min.js"></script>
+  {% endif %}
 {% endblock %}
