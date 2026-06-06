@@ -23,7 +23,7 @@
       const cur = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
       const next = cur === "light" ? "dark" : "light";
       document.documentElement.setAttribute("data-theme", next);
-      try { localStorage.setItem("nexora-theme", next); } catch (e) {}
+      try { localStorage.setItem("l3dlabz-theme", next); } catch (e) {}
     });
   }
 

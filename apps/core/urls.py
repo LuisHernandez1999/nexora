@@ -5,6 +5,7 @@ from . import views
 app_name = "core"
 
 urlpatterns = [
-    path("", views.HomeView.as_view(), name="home"),
+    # Home removida — a raiz abre a página "Sobre" (landing).
+    path("", views.AboutView.as_view(), name="home"),
     path("sobre/", views.AboutView.as_view(), name="about"),
 ]

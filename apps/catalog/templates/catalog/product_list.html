@@ -1,53 +1,23 @@
 {% extends "base.html" %}
 {% block title %}Catálogo · {{ SITE.name }}{% endblock %}
 {% block content %}
-<section class="section">
+<section class="section" style="padding-top:1.8rem">
   <div class="container">
 
-    <!-- carrossel de promoções -->
-    {% if promotions %}
-    <div class="carousel reveal" style="margin-bottom:2.4rem">
-      <div class="carousel-track">
-        {% for promo in promotions %}
-          <div class="slide">
-            <div class="bg"><img src="{{ promo.image_url }}" alt=""
-                 onerror="this.onerror=null;this.src='https://picsum.photos/seed/cat{{ forloop.counter }}/1200/440'"></div>
-            <div class="content">
-              <span class="eyebrow">{{ promo.badge }}</span>
-              <h2 class="section-title">{{ promo.title }}</h2>
-              <p class="text-muted">{{ promo.subtitle }}</p>
-              <div class="mt-2"><a href="{{ promo.cta_url }}" class="btn btn-primary">{{ promo.cta_label }} <svg class="icon icon-arrow"><use href="#i-arrow-right"></use></svg></a></div>
-            </div>
-          </div>
-        {% endfor %}
-      </div>
-      {% if promotions|length > 1 %}
-        <button class="carousel-arrow prev" data-carousel-prev aria-label="Anterior"><svg class="icon"><use href="#i-chevron-left"></use></svg></button>
-        <button class="carousel-arrow next" data-carousel-next aria-label="Próximo"><svg class="icon"><use href="#i-chevron-right"></use></svg></button>
-        <div class="carousel-dots" data-carousel-dots></div>
-      {% endif %}
-    </div>
-    {% endif %}
+    <!-- ===================== BUSCA ===================== -->
+    <form method="get" action="{% url 'catalog:product_list' %}" class="search-bar reveal">
+      {% if active_category %}<input type="hidden" name="categoria" value="{{ active_category.slug }}">{% endif %}
+      <input type="hidden" name="sort" value="{{ current_sort }}">
+      <input type="search" name="q" value="{{ query }}" placeholder="Buscar action figures, gadgets, réplicas…" aria-label="Buscar no catálogo">
+      <button class="btn btn-primary search-go" type="submit" aria-label="Buscar"><svg class="icon"><use href="#i-search"></use></svg></button>
+    </form>
 
-    <!-- busca central -->
-    <div class="search-hero reveal">
-      <span class="eyebrow eyebrow-center">{% if active_category %}{{ active_category.name }}{% else %}Catálogo completo{% endif %}</span>
-      <h1 style="max-width:18ch;margin-inline:auto">{% if query %}Resultados para “{{ query }}”{% elif active_category %}{{ active_category.name }}{% else %}Tudo o que dá pra imprimir{% endif %}</h1>
-      <form method="get" action="{% url 'catalog:product_list' %}">
-        {% if active_category %}<input type="hidden" name="categoria" value="{{ active_category.slug }}">{% endif %}
-        <input type="hidden" name="sort" value="{{ current_sort }}">
-        <div class="search-bar">
-          <svg class="icon"><use href="#i-search"></use></svg>
-          <input type="search" name="q" value="{{ query }}" placeholder="Buscar action figures, gadgets, réplicas…">
-          <button class="btn btn-primary" type="submit">Buscar</button>
-        </div>
-      </form>
-    </div>
-
-    <!-- filtros -->
+    <!-- ===================== FILTRO POR CATEGORIA ===================== -->
     <div class="filter-bar reveal">
       <div class="cat-pills">
-        <a class="pill {% if not active_category %}active{% endif %}" href="?sort={{ current_sort }}{% if query %}&q={{ query }}{% endif %}">Todas</a>
+        <a class="pill {% if not active_category %}active{% endif %}" href="?sort={{ current_sort }}{% if query %}&q={{ query }}{% endif %}">
+          <svg class="icon"><use href="#i-layers"></use></svg> Todas
+        </a>
         {% for cat in categories %}
           <a class="pill {% if active_category.slug == cat.slug %}active{% endif %}" href="?categoria={{ cat.slug }}&sort={{ current_sort }}{% if query %}&q={{ query }}{% endif %}">
             <svg class="icon" style="color:{{ cat.accent }}"><use href="#i-{{ cat.icon }}"></use></svg> {{ cat.name }}
@@ -70,10 +40,13 @@
       </form>
     </div>
 
-    <p class="text-dim reveal" style="margin:1.3rem 0 .2rem;font-size:.9rem">{{ total }} produto{{ total|pluralize }} encontrado{{ total|pluralize }}</p>
+    <p class="text-dim reveal" style="margin:1.2rem 0 1rem;font-size:.9rem">
+      {{ total }} produto{{ total|pluralize }}{% if active_category %} em {{ active_category.name }}{% endif %}{% if query %} para “{{ query }}”{% endif %}
+    </p>
 
+    <!-- ===================== PRODUTOS (cards) ===================== -->
     {% if products %}
-      <div class="product-grid mt-2">
+      <div class="product-grid">
         {% for product in products %}
           <div class="reveal" style="--i:{{ forloop.counter0 }}">{% include "catalog/partials/product_card.html" with product=product %}</div>
         {% endfor %}

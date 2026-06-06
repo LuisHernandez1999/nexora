@@ -1,0 +1,43 @@
+{% extends "seller/base.html" %}
+{% block title %}Rastreio de entregas{% endblock %}
+{% block content %}
+<section class="section" style="padding-top:1.8rem">
+  <div class="container">
+    <div class="page-head reveal">
+      <span class="eyebrow">Painel · {{ request.user.store_name|default:"Sua loja" }}</span>
+      <h1>Rastreio de entregas</h1>
+      <p>Acompanhe a produção e o envio dos pedidos em andamento.</p>
+    </div>
+
+    {% if orders %}
+      <div class="track-list">
+        {% for o in orders %}
+          <div class="track-card reveal" style="--i:{{ forloop.counter0 }}">
+            <div class="track-head">
+              <div>
+                <a href="{{ o.url }}" class="onum">{{ o.number }}</a>
+                <span class="track-meta">{{ o.customer }} — {{ o.city }}/{{ o.state }}</span>
+              </div>
+              <span class="status-badge {{ o.tone }}">{{ o.status_label }}</span>
+            </div>
+            <div class="track-steps">
+              {% for s in o.steps %}
+                <div class="track-step {% if s.done %}done{% endif %}">
+                  <span class="ts-dot"><svg class="icon"><use href="#i-check"></use></svg></span>
+                  <span class="ts-label">{{ s.label }}</span>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state reveal">
+        <div class="ph"><svg class="icon"><use href="#i-truck"></use></svg></div>
+        <h3>Nada em trânsito</h3>
+        <p class="text-muted">Pedidos em produção ou enviados aparecem aqui pra você acompanhar.</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

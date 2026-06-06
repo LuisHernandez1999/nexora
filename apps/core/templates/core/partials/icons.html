@@ -9,18 +9,22 @@
     <linearGradient id="kEar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#aebfd8"/><stop offset="1" stop-color="#8493b1"/></linearGradient>
     <radialGradient id="kInner" cx="50%" cy="42%" r="62%"><stop offset="0" stop-color="#e6d3de"/><stop offset="1" stop-color="#c8b4c5"/></radialGradient>
     <linearGradient id="kNose" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a4252"/><stop offset="1" stop-color="#1f2531"/></linearGradient>
-    <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7aa6f5"/><stop offset="1" stop-color="#5b8def"/></linearGradient>
+    <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7bf5a3"/><stop offset="1" stop-color="#23d65f"/></linearGradient>
 
-    <!-- Mascote: coala minimalista (silhueta) -->
-    <symbol id="i-koala" viewBox="0 0 64 64">
-      <g fill="url(#brandGrad)">
-        <circle cx="15.5" cy="19" r="11"/>
-        <circle cx="48.5" cy="19" r="11"/>
-        <circle cx="32" cy="36" r="19"/>
+    <!-- Marca L3dLabs: cubo isométrico impresso em 3D (camadas no flanco) -->
+    <symbol id="i-logo" viewBox="0 0 64 64">
+      <!-- topo -->
+      <path d="M32 5 57 18 32 31 7 18Z" fill="#86f7a8"/>
+      <!-- flanco esquerdo (com camadas de impressão) -->
+      <path d="M7 18 32 31 32 59 7 46Z" fill="#2be86b"/>
+      <!-- flanco direito -->
+      <path d="M57 18 32 31 32 59 57 46Z" fill="#16ad48"/>
+      <!-- linhas de camada -->
+      <g stroke="#06210f" stroke-width="1.1" opacity=".22" stroke-linecap="round">
+        <path d="M7 25 32 38"/><path d="M7 32 32 45"/><path d="M7 39 32 52"/>
       </g>
-      <circle cx="23.5" cy="33" r="2.7" fill="#0c1322"/>
-      <circle cx="40.5" cy="33" r="2.7" fill="#0c1322"/>
-      <ellipse cx="32" cy="41.5" rx="6" ry="5" fill="#0c1322"/>
+      <!-- brilho no topo -->
+      <path d="M32 9 49 18 32 27 15 18Z" fill="#b6ffce" opacity=".45"/>
     </symbol>
 
     <symbol id="i-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
@@ -126,6 +130,34 @@
     </symbol>
     <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
       <path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/>
+    </symbol>
+
+    <!-- ícones exclusivos da página Sobre (mais detalhados) -->
+    <symbol id="i-delivery" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2 6.5h10.5v8.5H2z"/><path d="M12.5 9h3.6l2.9 3v3h-6.5z"/>
+      <circle cx="6.2" cy="17.5" r="1.7"/><circle cx="16.8" cy="17.5" r="1.7"/>
+      <path d="M19.5 8.5h2.2M20 11.5h2"/>
+    </symbol>
+    <symbol id="i-installments" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2.5" y="5.5" width="19" height="13" rx="2.2"/><path d="M2.5 9.5h19"/>
+      <path d="M8.5 15.5l4-3"/><circle cx="8.8" cy="13" r=".9"/><circle cx="12.2" cy="15" r=".9"/><path d="M15 15.5h3"/>
+    </symbol>
+    <symbol id="i-support" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 13a7 7 0 0 1 14 0"/><rect x="3.2" y="12.5" width="3.6" height="6.2" rx="1.6"/>
+      <rect x="17.2" y="12.5" width="3.6" height="6.2" rx="1.6"/><path d="M19 18.7a3 3 0 0 1-3 3h-2.4"/>
+    </symbol>
+    <symbol id="i-printer3d" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="4" y="3.5" width="16" height="9" rx="1.4"/><path d="M7 12.5v3.5h10V12.5"/>
+      <path d="M9 17.5l3 2 3-2v-2.5l-3-1.6-3 1.6z"/><path d="M9 14.9l3 1.6 3-1.6"/>
+    </symbol>
+    <symbol id="i-pick3d" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 4l5 16 2.4-6.3L18.7 11z"/>
+    </symbol>
+    <symbol id="i-quality" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="8.5" r="5.5"/><path d="M9.6 8.5l1.7 1.7 3.1-3.2"/><path d="M8.4 13.4L7 21l5-2.4L17 21l-1.4-7.6"/>
+    </symbol>
+    <symbol id="i-whats" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.3A10 10 0 1 0 12 2zm0 2a8 8 0 1 1-4.1 14.9l-.3-.2-2.6.7.7-2.5-.2-.3A8 8 0 0 1 12 4zm-2.4 4c-.2 0-.5 0-.7.4-.2.4-.9.9-.9 2.1s.9 2.4 1 2.6c.1.2 1.7 2.7 4.2 3.7 2.1.8 2.5.7 3 .6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2-.1-.1-.3-.2-.6-.4-.3-.2-1.5-.8-1.8-.9-.2 0-.4-.1-.6.1-.2.3-.6.8-.7 1-.1.1-.3.2-.5.1-.3-.1-1.1-.4-2-1.3-.8-.7-1.3-1.5-1.4-1.8-.1-.3 0-.4.1-.5l.4-.5c.1-.1.2-.3.2-.5.1-.2 0-.4 0-.5l-.8-2c-.2-.5-.4-.4-.5-.4z"/>
     </symbol>
   </defs>
 </svg>
