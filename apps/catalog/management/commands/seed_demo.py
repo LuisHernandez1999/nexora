@@ -28,16 +28,19 @@ CATEGORIES = [
      "description": "Réplicas, máscaras e adereços para cosplay."},
     {"name": "Jogos & Tabuleiro", "icon": "tag", "accent": "#22d3ee",
      "description": "Miniaturas, organizadores e tokens para board games."},
+    {"name": "Tabacaria", "icon": "leaf", "accent": "#22c55e",
+     "description": "Porta-fumo, porta-pods, dichavadores e acessórios impressos em 3D."},
 ]
 
 # palavras-chave por categoria para buscar fotos reais (loremflickr)
 KEYWORDS = {
-    "Action Figures": "figurine,toy",
-    "Utensílios": "desk,organizer",
-    "Decoração": "lamp,decor",
+    "Action Figures": "anime,figure",
+    "Utensílios": "headset,controller",
+    "Decoração": "lamp,3dprint",
     "Gadgets": "gadget,tech",
-    "Cosplay & Props": "mask,helmet",
-    "Jogos & Tabuleiro": "boardgame,dice",
+    "Cosplay & Props": "cosplay,helmet",
+    "Jogos & Tabuleiro": "boardgame,miniature",
+    "Tabacaria": "grinder,herb",
 }
 
 
@@ -66,21 +69,26 @@ PRODUCTS = [
     ("Cosplay & Props", "Elmo Mandaloriano", "249.90", None, True, "5.0", 88, "PLA+", "Tam. único", 28),
     ("Jogos & Tabuleiro", "Organizador de Cartas Universal", "49.90", "64.90", False, "4.7", 240, "PLA", "—", 6),
     ("Jogos & Tabuleiro", "Pack 10 Miniaturas RPG", "89.90", None, True, "4.9", 310, "Resina", "32 mm", 7),
+    ("Tabacaria", "Porta-Fumo Hermético", "39.90", "49.90", True, "4.8", 180, "PLA+", "8×8×5 cm", 4),
+    ("Tabacaria", "Suporte de Pod Duplo", "29.90", None, True, "4.7", 220, "PETG", "10×6×4 cm", 3),
+    ("Tabacaria", "Case para Pods (kit 3)", "44.90", "54.90", False, "4.6", 140, "PLA", "12×8×4 cm", 5),
+    ("Tabacaria", "Dichavador 3 Partes", "34.90", None, False, "4.9", 260, "PLA+", "Ø6 cm", 3),
+    ("Tabacaria", "Porta-Sedas & Piteira", "24.90", None, False, "4.5", 95, "PLA", "9×5×2 cm", 2),
 ]
 
 PROMOTIONS = [
     {"kind": Promotion.Kind.HERO, "title": "Coleção Action Figures com até 25% OFF",
      "subtitle": "Estatuetas e bonecos articulados com preço de lançamento.",
      "badge": "Oferta da semana", "cta_label": "Ver coleção", "cta_url": "/catalogo/?categoria=action-figures",
-     "order": 0, "image_url": "https://loremflickr.com/1200/500/figurine,collectible?lock=11"},
+     "order": 0, "image_url": "https://loremflickr.com/1600/720/anime,figure?lock=11"},
     {"kind": Promotion.Kind.STRIP, "title": "Frete grátis acima de R$ 199",
      "subtitle": "Para todo o Brasil. Junte suas peças favoritas e economize no envio.",
      "badge": "Entrega", "cta_label": "Aproveitar", "cta_url": "/catalogo/",
-     "order": 1, "image_url": "https://loremflickr.com/1200/500/delivery,box?lock=12"},
+     "order": 1, "image_url": "https://loremflickr.com/1600/720/delivery,package?lock=12"},
     {"kind": Promotion.Kind.STRIP, "title": "Decoração que ilumina sua setup",
      "subtitle": "Luminárias e litofanias com 20% OFF nesta semana.",
      "badge": "Decoração", "cta_label": "Quero ver", "cta_url": "/catalogo/?categoria=decoracao",
-     "order": 2, "image_url": "https://loremflickr.com/1200/500/lamp,light?lock=13"},
+     "order": 2, "image_url": "https://loremflickr.com/1600/720/lamp,light?lock=13"},
 ]
 
 COUPONS = [
@@ -91,7 +99,7 @@ COUPONS = [
 
 
 class Command(BaseCommand):
-    help = "Popula o banco com dados de demonstração da Nexora."
+    help = "Popula o banco com dados de demonstração da L3dLabZ."
 
     def handle(self, *args, **options):
         cats: dict[str, Category] = {}

@@ -1,0 +1,51 @@
+{% extends "seller/base.html" %}
+{% block title %}Meus Produtos{% endblock %}
+{% block content %}
+<section class="section" style="padding-top:1.8rem">
+  <div class="container">
+    <div class="page-head reveal">
+      <span class="eyebrow">Painel · {{ request.user.store_name|default:"Sua loja" }}</span>
+      <h1>Meus Produtos</h1>
+      <p>Gerencie os itens que a sua loja vende na {{ SITE.name }}.</p>
+    </div>
+
+    <div class="stat-row reveal" style="margin-bottom:2rem">
+      <div class="stat"><div class="n">{{ metrics.products }}</div><div class="l">produtos</div></div>
+      <div class="stat"><div class="n">{{ metrics.orders }}</div><div class="l">pedidos</div></div>
+      <div class="stat"><div class="n">{{ metrics.to_ship }}</div><div class="l">a enviar</div></div>
+    </div>
+
+    {% if products %}
+      <div class="product-grid">
+        {% for p in products %}
+          <article class="product-card reveal" style="--i:{{ forloop.counter0 }}">
+            <div class="product-thumb" style="--ph-accent:{{ p.accent }}">
+              <span class="thumb-mono" style="--acc:{{ p.accent }}">{{ p.monogram }}</span>
+              {% if p.image_url %}<img src="{{ p.image_url }}" alt="{{ p.name }}" loading="lazy"
+                   onerror="this.onerror=null;this.src='https://picsum.photos/seed/{{ p.slug }}/600/600'">{% endif %}
+              {% if p.has_discount %}<span class="badge badge-discount">-{{ p.discount_pct }}%</span>{% endif %}
+              {% if not p.in_stock %}<span class="badge badge-soft">Esgotado</span>{% endif %}
+            </div>
+            <div class="product-body">
+              <span class="product-cat">{{ p.category_name }}</span>
+              <span class="product-name">{{ p.name }}</span>
+              <div class="price-row"><span class="price">{{ p.price_display }}</span>
+                {% if p.has_discount %}<span class="price-old">{{ p.old_price_display }}</span>{% endif %}</div>
+              <div class="product-actions">
+                <a href="{{ p.url }}" class="btn btn-ghost btn-sm btn-block">Ver na loja</a>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state reveal">
+        <div class="ph"><svg class="icon"><use href="#i-box"></use></svg></div>
+        <h3>Você ainda não tem produtos</h3>
+        <p class="text-muted">Quando você cadastrar produtos para a sua loja, eles aparecem aqui.</p>
+        <a href="{% url 'catalog:product_list' %}" class="btn btn-primary mt-2">Ver a loja</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

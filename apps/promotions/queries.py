@@ -32,6 +32,18 @@ class CouponQuery:
     def by_code(code: str) -> Coupon | None:
         return Coupon.objects.filter(code__iexact=code.strip()).first()
 
+    @staticmethod
+    def active() -> list[Coupon]:
+        from django.db.models import Q
+        from django.utils import timezone
+
+        now = timezone.now()
+        return list(
+            Coupon.objects.filter(is_active=True)
+            .filter(Q(valid_until__isnull=True) | Q(valid_until__gte=now))
+            .order_by("min_order")
+        )
+
 
 def invalidate_promotion_cache() -> None:
     cache_utils.invalidate(

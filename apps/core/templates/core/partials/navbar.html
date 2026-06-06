@@ -1,17 +1,22 @@
 {% load static %}
 <header class="site-header">
   <div class="container">
-    <a href="{% url 'core:home' %}" class="brand" aria-label="Nexora — início">
-      <svg class="brand-logo" viewBox="0 0 64 64" aria-hidden="true"><use href="#i-koala"></use></svg>
-      <span class="brand-word">nex<b>ora</b></span>
+    <a href="{% url 'core:home' %}" class="brand" aria-label="L3dLabZ — início">
+      <span class="brand-badge">
+        <img src="{% static 'img/logo.png' %}" alt="L3dLabZ"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <svg class="brand-fallback" viewBox="0 0 64 64" aria-hidden="true" style="display:none"><use href="#i-logo"></use></svg>
+      </span>
+      <span class="brand-word">L3d <b class="brand-labz">LabZ</b></span>
     </a>
 
+    {% with vn=request.resolver_match.view_name %}
     <nav class="main-nav" id="mainNav">
-      <a href="{% url 'catalog:product_list' %}">Catálogo</a>
-      <a href="{% url 'catalog:product_list' %}?sort=new">Lançamentos</a>
-      <a href="{% url 'promotions:list' %}">Promoções</a>
-      <a href="{% url 'core:about' %}">Sobre</a>
+      <a href="{% url 'catalog:product_list' %}" class="{% if vn == 'catalog:product_list' or vn == 'catalog:product_detail' %}active{% endif %}">Catálogo</a>
+      <a href="{% url 'promotions:list' %}" class="{% if vn == 'promotions:list' %}active{% endif %}">Promoções</a>
+      <a href="{% url 'core:about' %}" class="{% if vn == 'core:about' or vn == 'core:home' %}active{% endif %}">Sobre</a>
     </nav>
+    {% endwith %}
 
     <div class="header-actions">
       <button class="icon-btn theme-toggle" id="themeToggle" type="button" aria-label="Alternar tema" title="Alternar tema claro/escuro">
@@ -19,7 +24,7 @@
         <svg class="icon i-moon"><use href="#i-moon"></use></svg>
       </button>
       {% if user.is_authenticated %}
-        <a href="{% url 'accounts:profile' %}" class="icon-btn" title="Minha conta" aria-label="Minha conta">
+        <a href="{% url 'accounts:profile' %}" class="icon-btn {% if request.resolver_match.view_name == 'accounts:profile' %}is-active{% endif %}" title="Minha conta" aria-label="Minha conta">
           <svg class="icon"><use href="#i-user"></use></svg>
         </a>
         <form action="{% url 'accounts:logout' %}" method="post" style="display:inline">
@@ -31,7 +36,7 @@
         <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm">Criar conta</a>
       {% endif %}
 
-      <a href="{% url 'cart:detail' %}" class="icon-btn" title="Carrinho" aria-label="Carrinho">
+      <a href="{% url 'cart:detail' %}" class="icon-btn {% if request.resolver_match.view_name == 'cart:detail' %}is-active{% endif %}" title="Carrinho" aria-label="Carrinho">
         <svg class="icon"><use href="#i-cart"></use></svg>
         {% if cart_count %}<span class="cart-badge" data-cart-count>{{ cart_count }}</span>{% endif %}
       </a>
