@@ -69,9 +69,10 @@
     reader.onload = function (ev) {
       imgEl.onload = function () {
         imgPronta = true;
+        imgEl.hidden = false;
         if (empty) empty.hidden = true;
         cropBox.style.display = "block";
-        if (hint) hint.style.display = "";
+        if (hint) hint.hidden = false;
         _aplicarFiltroPreview();
         _ajustarBox();
       };

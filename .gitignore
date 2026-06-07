@@ -37,3 +37,6 @@ Thumbs.db
 
 # brainstorming visual companion
 .superpowers/
+
+# UAT screenshots (nao versionar)
+.shots/
