@@ -8,7 +8,7 @@
       <h1>Carrinho de compras</h1>
     </div>
 
-    {% if items %}
+    {% if items or litho_items %}
     <div class="cart-layout mt-3">
       <!-- itens -->
       <div class="card reveal">
@@ -46,6 +46,23 @@
           </div>
         {% endfor %}
 
+        {% for litho in litho_items %}
+          <div class="cart-item">
+            <span class="thumb">
+              {% if litho.image_url %}<img src="{{ litho.image_url }}" alt="{{ litho.name }}">{% endif %}
+            </span>
+            <div>
+              <span class="product-name">{{ litho.name }}</span>
+              <div class="text-dim" style="font-size:.85rem">{{ litho.price_display }}</div>
+              <form action="{% url 'cart:remove_litho' litho.draft_id %}" method="post" class="mt-1">
+                {% csrf_token %}
+                <button class="link-danger" type="submit"><svg class="icon"><use href="#i-trash"></use></svg> Remover</button>
+              </form>
+            </div>
+            <div style="text-align:right"><strong>A combinar</strong></div>
+          </div>
+        {% endfor %}
+
         <div class="mt-2" style="display:flex;justify-content:space-between;align-items:center">
           <a href="{% url 'catalog:product_list' %}" class="link-danger" style="color:var(--text-muted)">
             <svg class="icon"><use href="#i-chevron-left"></use></svg> Continuar comprando
@@ -77,6 +94,7 @@
           {% endif %}
           <div class="summary-row"><span>Frete</span><span>{{ summary.shipping_display }}</span></div>
           <div class="summary-row total"><span>Total</span><span>{{ summary.total_display }}</span></div>
+          {% if litho_items %}<div class="summary-row"><span>Lithophane(s)</span><span>A combinar</span></div>{% endif %}
 
           <form action="{% url 'cart:apply_coupon' %}" method="post" class="mt-2">
             {% csrf_token %}

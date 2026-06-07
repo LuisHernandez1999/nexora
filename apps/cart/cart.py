@@ -7,6 +7,7 @@ from __future__ import annotations
 
 SESSION_KEY = "cart"
 COUPON_KEY = "cart_coupon"
+LITHO_KEY = "cart_litho"
 
 
 class SessionCart:
@@ -37,7 +38,26 @@ class SessionCart:
     def clear(self) -> None:
         self._items = {}
         self.session.pop(COUPON_KEY, None)
+        self.session.pop(LITHO_KEY, None)
         self._save()
+
+    # ---- lithophane (itens custom "a combinar", chave de sessão separada) ----
+    def add_litho(self, draft_id: int) -> None:
+        """Adiciona (ou ignora se já existe) um item lithophane ao carrinho."""
+        drafts = self.session.get(LITHO_KEY, [])
+        if draft_id not in drafts:
+            drafts.append(draft_id)
+        self.session[LITHO_KEY] = drafts
+        self.session.modified = True
+
+    def remove_litho(self, draft_id: int) -> None:
+        drafts = [d for d in self.session.get(LITHO_KEY, []) if d != draft_id]
+        self.session[LITHO_KEY] = drafts
+        self.session.modified = True
+
+    @property
+    def litho_draft_ids(self) -> list[int]:
+        return list(self.session.get(LITHO_KEY, []))
 
     # ---- cupom ----
     @property
