@@ -16,16 +16,12 @@ class AccountService(BaseService):
     @staticmethod
     @transaction.atomic
     def register(form) -> User:
-        """Cria o usuário a partir do RegisterForm já validado (cliente ou vendedor)."""
+        """Cria o usuário a partir do RegisterForm já validado."""
         user = form.save(commit=False)
         data = form.cleaned_data
         user.email = data["email"]
-        user.role = data.get("role", User.Role.CLIENTE)
         user.phone = data.get("phone", "")
         user.newsletter_opt_in = data.get("newsletter_opt_in", True)
-        if user.role == User.Role.VENDEDOR:
-            user.store_name = data.get("store_name", "")
-            user.document = data.get("document", "")
         user.save()
         return user
 

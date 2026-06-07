@@ -10,24 +10,12 @@ from .managers import UserManager
 
 
 class User(AbstractUser):
-    """Usuário com login por e-mail (sem username).
-
-    O papel define o fluxo: cliente (compra) ou vendedor (painel da loja).
-    """
-
-    class Role(models.TextChoices):
-        CLIENTE = "cliente", "Cliente"
-        VENDEDOR = "vendedor", "Vendedor"
+    """Usuário com login por e-mail (sem username)."""
 
     username = None
     email = models.EmailField("e-mail", unique=True)
     phone = models.CharField("telefone", max_length=20, blank=True)
     newsletter_opt_in = models.BooleanField("recebe novidades", default=True)
-
-    role = models.CharField("papel", max_length=10, choices=Role.choices, default=Role.CLIENTE)
-    # dados exclusivos do vendedor
-    store_name = models.CharField("nome da loja", max_length=120, blank=True)
-    document = models.CharField("CPF/CNPJ", max_length=20, blank=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -43,11 +31,7 @@ class User(AbstractUser):
 
     @property
     def display_name(self) -> str:
-        return self.store_name or self.first_name or self.email.split("@")[0]
-
-    @property
-    def is_seller(self) -> bool:
-        return self.role == self.Role.VENDEDOR
+        return self.first_name or self.email.split("@")[0]
 
 
 class Address(TimeStampedModel):

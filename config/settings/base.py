@@ -50,7 +50,6 @@ LOCAL_APPS = [
     "apps.promotions",
     "apps.cart",
     "apps.orders",
-    "apps.seller",
     "apps.lithophane",
 ]
 

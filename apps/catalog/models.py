@@ -4,7 +4,6 @@ from __future__ import annotations
 from datetime import timedelta
 from decimal import Decimal
 
-from django.conf import settings
 from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.urls import reverse
@@ -53,10 +52,6 @@ class ProductQuerySet(models.QuerySet):
 class Product(TimeStampedModel):
     category = models.ForeignKey(
         Category, on_delete=models.PROTECT, related_name="products", verbose_name="categoria"
-    )
-    seller = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
-        related_name="products", verbose_name="vendedor",
     )
     name = models.CharField("nome", max_length=140)
     slug = models.SlugField("slug", max_length=160, unique=True)

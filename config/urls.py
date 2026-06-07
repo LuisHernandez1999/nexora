@@ -10,7 +10,6 @@ urlpatterns = [
     path("conta/", include("apps.accounts.urls")),
     path("catalogo/", include("apps.catalog.urls")),
     path("promocoes/", include("apps.promotions.urls")),
-    path("vendedor/", include("apps.seller.urls")),
     path("carrinho/", include("apps.cart.urls")),
     path("pedidos/", include("apps.orders.urls")),
     path("lithophane/", include("apps.lithophane.urls")),

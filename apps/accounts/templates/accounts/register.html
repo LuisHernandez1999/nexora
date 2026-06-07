@@ -30,44 +30,15 @@
         {% csrf_token %}
         {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors }}</div>{% endif %}
 
-        <div class="field">
-          <label>{{ form.role.label }}</label>
-          <div class="role-choices">
-            {% for radio in form.role %}
-              <label>{{ radio.tag }} <span>{{ radio.choice_label }}</span></label>
-            {% endfor %}
-          </div>
-          {% for e in form.role.errors %}<div class="errors">{{ e }}</div>{% endfor %}
-        </div>
-
         {% include "core/partials/field.html" with field=form.first_name %}
         {% include "core/partials/field.html" with field=form.email %}
         {% include "core/partials/field.html" with field=form.phone %}
-
-        <div class="seller-fields" id="sellerFields">
-          {% include "core/partials/field.html" with field=form.store_name %}
-          {% include "core/partials/field.html" with field=form.document %}
-        </div>
 
         {% include "core/partials/field.html" with field=form.password1 %}
         {% include "core/partials/field.html" with field=form.password2 %}
         {% include "core/partials/field.html" with field=form.newsletter_opt_in %}
         <button type="submit" class="btn btn-primary btn-block mt-1">Criar conta <svg class="icon icon-arrow"><use href="#i-arrow-right"></use></svg></button>
       </form>
-
-      <script>
-        (function(){
-          var form = document.getElementById('registerForm');
-          if(!form) return;
-          var sf = document.getElementById('sellerFields');
-          function update(){
-            var sel = form.querySelector('input[name="role"]:checked');
-            sf.style.display = (sel && sel.value === 'vendedor') ? 'block' : 'none';
-          }
-          form.querySelectorAll('input[name="role"]').forEach(function(r){ r.addEventListener('change', update); });
-          update();
-        })();
-      </script>
 
       <p class="form-aside">Já tem conta? <a href="{% url 'accounts:login' %}">Entrar</a></p>
     </div>
