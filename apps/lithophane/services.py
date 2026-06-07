@@ -33,8 +33,8 @@ class LithophaneService(BaseService):
         session_key: str = "",
     ) -> LithophaneDraft:
         """Gera GLB+STL via LithophaneGenerator, persiste e devolve o draft."""
-        # formato do enum do motor: só placa/luminaria são suportados na Fase 1
-        formato_motor = formato if formato in ("placa", "luminaria") else "placa"
+        # formato do motor: os 4 são suportados (placa/luminaria/curvo/cubo)
+        formato_motor = formato if formato in ("placa", "luminaria", "curvo", "cubo") else "placa"
         specs = EspecsLitho(
             largura_mm=float(largura_mm),
             espessura_min_mm=ESPESSURA_MIN_MM,

@@ -7,35 +7,41 @@
   <div class="container">
 
     <!-- cabeçalho + slogan -->
-    <div class="reveal" style="text-align:center;max-width:46ch;margin-inline:auto">
-      <span class="eyebrow eyebrow-center">Faça meu Lithophane</span>
+    <div class="page-head reveal">
+      <span class="eyebrow">Faça meu Lithophane</span>
       <h1>Sua foto vira luz</h1>
-      <p class="text-muted">Onde memórias preciosas ganham forma na luz — envie uma foto, ajuste, e veja a peça 3D antes de encomendar.</p>
+      <p class="text-muted">Onde memórias preciosas ganham forma na luz — envie uma foto, enquadre, e veja a peça 3D antes de encomendar.</p>
     </div>
 
     <!-- editor -->
-    <div class="litho-editor reveal mt-3">
+    <div class="litho-editor reveal">
 
       <!-- rail de ferramentas -->
       <div class="litho-rail">
         <label class="litho-tool" title="Enviar foto">
           <input type="file" id="litho-file" accept="image/*" hidden>
           <svg class="icon"><use href="#i-box"></use></svg>
-          <span>Enviar foto</span>
+          <span>Enviar</span>
         </label>
         <button type="button" class="litho-tool" id="btn-inverter" title="Inverter tons">
           <svg class="icon"><use href="#i-layers"></use></svg>
           <span>Inverter</span>
         </button>
+        <button type="button" class="litho-tool" id="btn-reset" title="Reenquadrar">
+          <svg class="icon"><use href="#i-ruler"></use></svg>
+          <span>Centralizar</span>
+        </button>
       </div>
 
-      <!-- palco central: canvas -> viewer -->
+      <!-- palco central: canvas (recorte) -> viewer -->
       <div class="litho-stage" id="litho-stage">
-        <canvas id="litho-canvas" width="512" height="512" aria-label="Pré-visualização da foto"></canvas>
-
-        <div id="litho-viewer-wrap" hidden>
-          <!-- model-viewer é injetado aqui pelo JS após gerar -->
+        <div class="litho-crop" id="litho-crop">
+          <canvas id="litho-canvas" width="512" height="512" aria-label="Recorte da foto"></canvas>
+          <span class="litho-crop-frame" aria-hidden="true"></span>
+          <span class="litho-hint" id="litho-hint">Arraste para reposicionar · use o zoom no painel</span>
         </div>
+
+        <div id="litho-viewer-wrap" hidden><!-- model-viewer injetado pelo JS --></div>
 
         <div class="litho-empty" id="litho-empty">
           <svg class="icon"><use href="#i-box"></use></svg>
@@ -56,9 +62,14 @@
           <div class="litho-formats">
             <label class="litho-fmt"><input type="radio" name="formato" value="placa" checked> <svg class="icon"><use href="#i-layers"></use></svg> Placa</label>
             <label class="litho-fmt"><input type="radio" name="formato" value="luminaria"> <svg class="icon"><use href="#i-sun"></use></svg> Luminária</label>
-            <label class="litho-fmt is-soon"><input type="radio" name="formato" value="curvo" disabled> <svg class="icon"><use href="#i-cube"></use></svg> Curvo <em>em breve</em></label>
-            <label class="litho-fmt is-soon"><input type="radio" name="formato" value="cubo" disabled> <svg class="icon"><use href="#i-cube"></use></svg> Cubo <em>em breve</em></label>
+            <label class="litho-fmt"><input type="radio" name="formato" value="curvo"> <svg class="icon"><use href="#i-pick3d"></use></svg> Curvo</label>
+            <label class="litho-fmt"><input type="radio" name="formato" value="cubo"> <svg class="icon"><use href="#i-cube"></use></svg> Cubo</label>
           </div>
+        </div>
+
+        <div class="litho-field">
+          <label class="label" for="litho-zoom">Zoom — <strong id="out-zoom">100</strong>%</label>
+          <input type="range" id="litho-zoom" min="100" max="300" value="100">
         </div>
 
         <div class="litho-field">
@@ -82,6 +93,9 @@
 
         <!-- ações pós-geração -->
         <div class="litho-actions" id="litho-actions" hidden>
+          <button type="button" id="btn-refazer" class="btn btn-ghost btn-block mb-1">
+            <svg class="icon"><use href="#i-chevron-left"></use></svg> Editar a foto
+          </button>
           <form id="litho-order-form" method="post" action="" class="litho-order">
             {% csrf_token %}
             <button type="submit" class="btn btn-primary btn-block">

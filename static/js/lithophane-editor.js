@@ -1,4 +1,4 @@
-/* Faça meu Lithophane — editor 2D no canvas + geração 3D + toggle de luz.
+/* Faça meu Lithophane — recorte (pan + zoom) no canvas + geração 3D + toggle de luz.
    Vanilla puro (sem framework): DOM + canvas + fetch. */
 (function () {
   "use strict";
@@ -9,41 +9,61 @@
   var ctx = canvas.getContext("2d");
   var fileInput = document.getElementById("litho-file");
   var btnInverter = document.getElementById("btn-inverter");
+  var btnReset = document.getElementById("btn-reset");
   var btnGerar = document.getElementById("btn-gerar");
+  var btnRefazer = document.getElementById("btn-refazer");
   var btnLuz = document.getElementById("btn-luz");
   var btnLuzLabel = document.getElementById("btn-luz-label");
   var btnStl = document.getElementById("btn-stl");
   var orderForm = document.getElementById("litho-order-form");
   var actions = document.getElementById("litho-actions");
   var viewerWrap = document.getElementById("litho-viewer-wrap");
+  var cropWrap = document.getElementById("litho-crop");
   var empty = document.getElementById("litho-empty");
+  var hint = document.getElementById("litho-hint");
+  var sliderZoom = document.getElementById("litho-zoom");
   var sliderBrilho = document.getElementById("litho-brightness");
 
+  // estado do recorte
   var imgOriginal = null;
   var inverter = false;
   var luzAtiva = false;
+  var zoom = 100, panX = 0, panY = 0;
 
-  // ---- liga os outputs dos sliders ----
-  [["litho-size", "out-size"], ["litho-thickness", "out-thickness"], ["litho-brightness", "out-brightness"]]
+  // ---- liga os outputs dos sliders (e re-render quando afeta o preview) ----
+  [["litho-size", "out-size"], ["litho-thickness", "out-thickness"],
+   ["litho-brightness", "out-brightness"], ["litho-zoom", "out-zoom"]]
     .forEach(function (par) {
       var s = document.getElementById(par[0]);
       var o = document.getElementById(par[1]);
-      if (s && o) s.addEventListener("input", function () {
+      if (!s || !o) return;
+      s.addEventListener("input", function () {
         o.textContent = s.value;
-        if (par[0] === "litho-brightness") _render();
+        if (par[0] === "litho-brightness" || par[0] === "litho-zoom") {
+          if (par[0] === "litho-zoom") zoom = +s.value;
+          _render();
+        }
       });
     });
 
-  // ---- desenha a foto no canvas com filtros (preview do relevo) ----
+  // ---- desenha a foto recortada (cover + zoom + pan) com filtros ----
   function _render() {
     if (!imgOriginal) return;
+    var cw = canvas.width, ch = canvas.height;
+    var iw = imgOriginal.width, ih = imgOriginal.height;
+    var cover = Math.max(cw / iw, ch / ih);   // preenche o quadrado
+    var s = cover * (zoom / 100);
+    var dw = iw * s, dh = ih * s;
+    var dx = (cw - dw) / 2 + panX;
+    var dy = (ch - dh) / 2 + panY;
     var b = sliderBrilho ? sliderBrilho.value : 100;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.clearRect(0, 0, cw, ch);
     ctx.filter = "brightness(" + b + "%) grayscale(100%)";
-    ctx.drawImage(imgOriginal, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(imgOriginal, dx, dy, dw, dh);
     ctx.filter = "none";
     if (inverter) {
-      var id = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      var id = ctx.getImageData(0, 0, cw, ch);
       for (var i = 0; i < id.data.length; i += 4) {
         id.data[i] = 255 - id.data[i];
         id.data[i + 1] = 255 - id.data[i + 1];
@@ -51,6 +71,12 @@
       }
       ctx.putImageData(id, 0, 0);
     }
+  }
+
+  function _reset() {
+    zoom = 100; panX = 0; panY = 0;
+    if (sliderZoom) { sliderZoom.value = 100; document.getElementById("out-zoom").textContent = "100"; }
+    _render();
   }
 
   // ---- upload ----
@@ -63,7 +89,8 @@
       img.onload = function () {
         imgOriginal = img;
         if (empty) empty.hidden = true;
-        _render();
+        if (hint) hint.style.display = "";
+        _reset();
       };
       img.src = ev.target.result;
     };
@@ -75,6 +102,29 @@
     btnInverter.classList.toggle("luz-ativa", inverter);
     _render();
   });
+  if (btnReset) btnReset.addEventListener("click", _reset);
+
+  // ---- arrastar para reposicionar (pan) ----
+  var arrastando = false, lastX = 0, lastY = 0;
+  function _pt(e) { return e.touches ? e.touches[0] : e; }
+  canvas.addEventListener("pointerdown", function (e) {
+    if (!imgOriginal) return;
+    arrastando = true; lastX = e.clientX; lastY = e.clientY;
+    canvas.setPointerCapture(e.pointerId);
+    canvas.style.cursor = "grabbing";
+  });
+  canvas.addEventListener("pointermove", function (e) {
+    if (!arrastando) return;
+    var rect = canvas.getBoundingClientRect();
+    var fx = canvas.width / rect.width;   // escala tela -> canvas
+    panX += (e.clientX - lastX) * fx;
+    panY += (e.clientY - lastY) * fx;
+    lastX = e.clientX; lastY = e.clientY;
+    _render();
+  });
+  function _soltar() { arrastando = false; canvas.style.cursor = "grab"; }
+  canvas.addEventListener("pointerup", _soltar);
+  canvas.addEventListener("pointercancel", _soltar);
 
   // ---- gerar o 3D no servidor ----
   function _csrf() {
@@ -86,7 +136,7 @@
     if (!imgOriginal) { alert("Envie uma foto primeiro."); return; }
     var formatoEl = document.querySelector('input[name="formato"]:checked');
     var formato = formatoEl ? formatoEl.value : "placa";
-    var dataURL = canvas.toDataURL("image/png");
+    var dataURL = canvas.toDataURL("image/png");  // só o recorte visível
     var fd = new FormData();
     fd.append("imagem", dataURL);
     fd.append("formato", formato);
@@ -113,9 +163,17 @@
   }
   if (btnGerar) btnGerar.addEventListener("click", _gerar);
 
-  // ---- troca o canvas pelo model-viewer ----
+  // ---- volta do viewer para a edição ----
+  if (btnRefazer) btnRefazer.addEventListener("click", function () {
+    viewerWrap.hidden = true;
+    if (cropWrap) cropWrap.style.display = "";
+    actions.hidden = true;
+    btnLuz.hidden = true;
+  });
+
+  // ---- troca o recorte pelo model-viewer ----
   function _mostrarViewer(data) {
-    canvas.style.display = "none";
+    if (cropWrap) cropWrap.style.display = "none";
     if (empty) empty.hidden = true;
 
     var viewer = document.getElementById("litho-viewer");
@@ -133,7 +191,6 @@
     viewer.setAttribute("exposure", "1.0");
     viewerWrap.hidden = false;
 
-    // botões pós-geração
     btnStl.setAttribute("href", data.stl_url);
     orderForm.setAttribute("action", "/carrinho/lithophane/adicionar/" + data.draft_id + "/");
     actions.hidden = false;

@@ -13,6 +13,7 @@ pixel escuro = grosso (bloqueia a luz).
 """
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from typing import Literal
 
@@ -22,7 +23,7 @@ from PIL import Image
 from trimesh.visual.material import PBRMaterial
 from trimesh.visual.texture import TextureVisuals
 
-FormatoLitho = Literal["placa", "luminaria"]
+FormatoLitho = Literal["placa", "luminaria", "curvo", "cubo"]
 
 # Maior lado da textura emissiva embutida no GLB (controla o tamanho do arquivo).
 _TEX_MAX_PX = 512
@@ -44,7 +45,11 @@ class LithophaneGenerator:
     def gerar(imagem_pil: Image.Image, specs: EspecsLitho) -> tuple[bytes, bytes]:
         """Devolve (glb_bytes, stl_bytes). NÃO toca em ORM/HTTP/FileField."""
         heightmap = _imagem_para_heightmap(imagem_pil, specs)
-        malha, uv = _heightmap_para_mesh(heightmap, specs)
+        # cubo = bloco fundo (base recuada); demais = placa fina (base em z=0)
+        base_z = -float(specs.largura_mm) * 0.6 if specs.formato == "cubo" else 0.0
+        malha, uv = _heightmap_para_mesh(heightmap, specs, base_z=base_z)
+        if specs.formato == "curvo":
+            _curvar(malha, specs)          # dobra o painel num arco (abajur)
         glb = _exportar_glb(malha, uv, imagem_pil)
         stl = malha.export(file_type="stl")
         return glb, stl
@@ -69,7 +74,9 @@ def _imagem_para_heightmap(img: Image.Image, specs: EspecsLitho) -> np.ndarray:
     return alturas.astype(np.float32)                   # (H, W)
 
 
-def _heightmap_para_mesh(alturas: np.ndarray, specs: EspecsLitho) -> tuple[trimesh.Trimesh, np.ndarray]:
+def _heightmap_para_mesh(
+    alturas: np.ndarray, specs: EspecsLitho, base_z: float = 0.0
+) -> tuple[trimesh.Trimesh, np.ndarray]:
     """Monta uma malha sólida watertight (topo + base + 4 paredes) a partir do heightmap.
 
     Vértices do topo e da base são compartilhados pelas paredes (índices reusados),
@@ -81,11 +88,11 @@ def _heightmap_para_mesh(alturas: np.ndarray, specs: EspecsLitho) -> tuple[trime
 
     ys, xs = np.meshgrid(np.arange(h), np.arange(w), indexing="ij")  # (H,W)
     x = xs * dx
-    y = ys * dx
+    y = (h - 1 - ys) * dx  # linha 0 (topo da foto) fica em cima (+Y) — corrige "de cabeça pra baixo"
 
     n = h * w
     top = np.stack([x, y, alturas], axis=-1).reshape(-1, 3)
-    bot = np.stack([x, y, np.zeros_like(alturas)], axis=-1).reshape(-1, 3)
+    bot = np.stack([x, y, np.full_like(alturas, base_z)], axis=-1).reshape(-1, 3)
     vertices = np.vstack([top, bot]).astype(np.float64)
 
     def t(i, j):  # índice do vértice do topo
@@ -134,10 +141,28 @@ def _heightmap_para_mesh(alturas: np.ndarray, specs: EspecsLitho) -> tuple[trime
 
     # UV: foto mapeada no topo (Y invertido para convenção de imagem); base = (0,0)
     u = (xs / float(w - 1)).reshape(-1)
-    v = (1.0 - ys / float(h - 1)).reshape(-1)
+    v = (ys / float(h - 1)).reshape(-1)  # glTF: v=0 no topo da textura = linha 0 da foto
     uv_top = np.stack([u, v], axis=1)
     uv = np.vstack([uv_top, np.zeros((n, 2))])
     return malha, uv
+
+
+def _curvar(malha: trimesh.Trimesh, specs: EspecsLitho) -> None:
+    """Dobra a placa plana num arco cilíndrico (visual de abajur). In-place.
+
+    Transformação pura de vértices — preserva a topologia, então a malha
+    continua watertight.
+    """
+    v = malha.vertices.copy()
+    xmin, xmax = float(v[:, 0].min()), float(v[:, 0].max())
+    largura = max(xmax - xmin, 1e-6)
+    arco = math.radians(150.0)              # abertura total do arco
+    raio = largura / arco                   # comprimento do arco ≈ largura
+    theta = (v[:, 0] - xmin) / largura * arco - arco / 2.0
+    r = raio + v[:, 2]                      # o relevo soma ao raio (fica pra fora)
+    v[:, 0] = r * np.sin(theta)
+    v[:, 2] = r * np.cos(theta) - raio
+    malha.vertices = v
 
 
 def _exportar_glb(malha: trimesh.Trimesh, uv: np.ndarray, imagem_pil: Image.Image) -> bytes:

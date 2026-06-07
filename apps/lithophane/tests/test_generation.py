@@ -92,3 +92,15 @@ class GeracaoLithophaneTests(SimpleTestCase):
     def test_glb_abaixo_de_5mb(self):
         glb, _ = LithophaneGenerator.gerar(_foto_teste(), _SPECS)
         self.assertLess(len(glb), 5 * 1024 * 1024)
+
+    def test_todos_formatos_geram_malha_watertight(self):
+        for fmt in ("placa", "luminaria", "curvo", "cubo"):
+            specs = EspecsLitho(
+                largura_mm=100.0, espessura_min_mm=0.8, espessura_max_mm=3.0,
+                resolucao_px=160, formato=fmt,
+            )
+            glb, stl = LithophaneGenerator.gerar(_foto_teste(), specs)
+            malha = _malha_de(stl, "stl")
+            self.assertGreater(len(malha.faces), 0, fmt)
+            self.assertTrue(malha.is_watertight, f"formato {fmt} deve ser watertight")
+            self.assertGreater(len(glb), 0, fmt)
