@@ -78,16 +78,6 @@
         <div class="card reveal" style="--i:1">
           <h3>Resumo do pedido</h3>
 
-          {% if not summary.is_free_shipping %}
-            {% widthratio summary.subtotal summary.free_shipping_threshold 100 as pct %}
-            <div class="mt-1" style="font-size:.85rem;color:var(--text-muted)">
-              Faltam <strong class="text-accent">{{ summary.missing_for_free_shipping|floatformat:2 }}</strong> para o frete grátis
-            </div>
-            <div class="skeleton" style="height:8px;margin:.6rem 0 1rem;background:var(--bg-elevated);animation:none;position:relative;overflow:hidden">
-              <span style="position:absolute;inset:0;width:{{ pct }}%;max-width:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:inherit;transition:width .6s var(--ease)"></span>
-            </div>
-          {% endif %}
-
           <div class="summary-row"><span>Subtotal</span><span>{{ summary.subtotal_display }}</span></div>
           {% if summary.has_discount %}
             <div class="summary-row" style="color:var(--success)"><span>Desconto {% if summary.coupon_code %}({{ summary.coupon_code }}){% endif %}</span><span>- {{ summary.discount_display }}</span></div>
