@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1: Rebrand & UI Minimalista** - Marca L3D Labz, paleta Luigi nos dois temas e redesign minimalista das páginas-chave
 - [ ] **Phase 2: Fundação de Dados 3D** - Campos GLB/STL no `Product` com upload via Django admin e migração
 - [x] **Phase 3: Visualizador 3D & Galeria** - `<model-viewer>` no detalhe do produto, fallback de imagem, download STL e aba de Modelos 3D (completed 2026-06-06)
-- [ ] **Phase 4: Faça meu Lithophane** - Editor de upload+ajuste 2D, geração 3D server-side (GLB+STL) com toggle de luz emissivo, e pedido de orçamento no carrinho
+- [x] **Phase 4: Faça meu Lithophane** - Editor de upload+ajuste 2D, geração 3D server-side (GLB+STL) com toggle de luz emissivo, e pedido de orçamento no carrinho (completed 2026-06-07)
 
 ## Phase Details
 
@@ -68,7 +68,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. O cliente acessa `/lithophane/`, ajusta a foto no canvas, clica "Gerar 3D" e vê o lithophane no `<model-viewer>` com o toggle de luz acendendo a foto.
   4. O cliente clica "Encomendar" e a peça entra no carrinho como item "a combinar"; o checkout cria um `Order` com status `orcamento`, sem captura de pagamento.
   5. O navbar tem o link "Faça meu Lithophane", o slogan "Onde memórias preciosas ganham forma na luz" aparece, e há botão "Baixar STL".
-**Plans:** 4 plans
+**Plans:** 4/4 plans complete
 - [x] 04-01-PLAN.md — Motor de geração `generation.py` (TDD): foto → heightmap → malha watertight → GLB emissivo + STL (numpy+trimesh)
 - [ ] 04-02-PLAN.md — Camada Django: `LithophaneDraft` + migration + `LithophaneService` (envolve o motor) + `LithophaneQuery`/`LithophaneMapper` + app registrado
 - [ ] 04-03-PLAN.md — Integração carrinho/pedido: `cart_litho`, `Order.Status.ORCAMENTO`, `OrderItem.draft_id`/`litho_specs`, checkout pula pagamento, tolerância a item "a combinar"
@@ -84,4 +84,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 (Fase 1 e Fase 2 são indep
 | 1. Rebrand & UI Minimalista | 0/2 | Planned | - |
 | 2. Fundação de Dados 3D | 0/1 | Planned | - |
 | 3. Visualizador 3D & Galeria | 2/2 | Complete   | 2026-06-06 |
-| 4. Faça meu Lithophane | 1/4 | Planned | - |
+| 4. Faça meu Lithophane | 1/4 | Complete    | 2026-06-07 |
