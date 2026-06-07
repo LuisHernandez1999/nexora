@@ -1789,3 +1789,34 @@ select { -webkit-appearance: none; -moz-appearance: none; appearance: none; curs
   padding: .25rem .65rem; border-radius: 999px; pointer-events: none; white-space: nowrap;
 }
 .litho-fmt:has(input:disabled) { display: none; }
+
+/* ---- Lithophane: cropper (moldura + proporção) ---- */
+.litho-crop { position: relative; display: inline-block; line-height: 0; max-width: 100%; }
+#litho-img {
+  display: block; max-width: 100%; max-height: 460px;
+  -webkit-user-select: none; user-select: none; border-radius: var(--radius-sm);
+}
+.crop-box {
+  position: absolute; display: none;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, .45);
+  border: 1px solid rgba(255, 255, 255, .9);
+  cursor: move; touch-action: none;
+}
+.crop-h {
+  position: absolute; width: 14px; height: 14px;
+  background: var(--accent); border: 2px solid #fff; border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+}
+.crop-h.tl { left: -8px; top: -8px; cursor: nwse-resize; }
+.crop-h.tr { right: -8px; top: -8px; cursor: nesw-resize; }
+.crop-h.bl { left: -8px; bottom: -8px; cursor: nesw-resize; }
+.crop-h.br { right: -8px; bottom: -8px; cursor: nwse-resize; }
+.litho-ratios { display: flex; gap: .4rem; margin-top: .4rem; }
+.litho-ratios .ratio {
+  flex: 1; padding: .45rem .2rem; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); background: var(--bg-card);
+  font-size: .78rem; font-weight: 600; color: var(--text-muted); cursor: pointer;
+}
+.litho-ratios .ratio.is-on {
+  border-color: var(--accent); background: var(--accent-soft); color: var(--accent-strong);
+}

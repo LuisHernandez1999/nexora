@@ -36,10 +36,14 @@
       <!-- palco central: canvas (recorte) -> viewer -->
       <div class="litho-stage" id="litho-stage">
         <div class="litho-crop" id="litho-crop">
-          <canvas id="litho-canvas" width="512" height="512" aria-label="Recorte da foto"></canvas>
-          <span class="litho-crop-frame" aria-hidden="true"></span>
-          <span class="litho-hint" id="litho-hint">Arraste para reposicionar · use o zoom no painel</span>
+          <img id="litho-img" alt="Sua foto" draggable="false">
+          <div class="crop-box" id="crop-box">
+            <span class="crop-h tl"></span><span class="crop-h tr"></span>
+            <span class="crop-h bl"></span><span class="crop-h br"></span>
+          </div>
+          <span class="litho-hint" id="litho-hint">Arraste a moldura · puxe os cantos pra ajustar</span>
         </div>
+        <canvas id="litho-canvas" width="2" height="2" hidden></canvas>
 
         <div id="litho-viewer-wrap" hidden><!-- model-viewer injetado pelo JS --></div>
 
@@ -68,8 +72,13 @@
         </div>
 
         <div class="litho-field">
-          <label class="label" for="litho-zoom">Zoom — <strong id="out-zoom">100</strong>%</label>
-          <input type="range" id="litho-zoom" min="100" max="300" value="100">
+          <span class="label">Proporção</span>
+          <div class="litho-ratios" id="litho-ratios">
+            <button type="button" class="ratio is-on" data-ratio="1">1:1</button>
+            <button type="button" class="ratio" data-ratio="0.75">3:4</button>
+            <button type="button" class="ratio" data-ratio="1.3333">4:3</button>
+            <button type="button" class="ratio" data-ratio="1.7778">16:9</button>
+          </div>
         </div>
 
         <div class="litho-field">
