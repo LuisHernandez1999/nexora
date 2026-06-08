@@ -5,6 +5,7 @@ from datetime import timedelta
 from decimal import Decimal
 
 from django.conf import settings
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -12,6 +13,7 @@ from django.utils import timezone
 from apps.core.models import TimeStampedModel
 
 NEW_PRODUCT_WINDOW_DAYS = 21
+MAX_PRODUCT_IMAGES = 4  # regra de negocio: ate 4 fotos por produto
 
 
 class Category(TimeStampedModel):
@@ -46,7 +48,8 @@ class ProductQuerySet(models.QuerySet):
         return self.filter(is_active=True)
 
     def with_relations(self):
-        return self.select_related("category")
+        # prefetch da galeria evita N+1 ao montar a capa nas listagens
+        return self.select_related("category").prefetch_related("images")
 
 
 class Product(TimeStampedModel):
@@ -74,8 +77,16 @@ class Product(TimeStampedModel):
     )
 
     stock = models.PositiveIntegerField("estoque", default=10)
-    rating = models.DecimalField("avaliação", max_digits=3, decimal_places=2, default=Decimal("5.0"))
+    rating = models.DecimalField(
+        "avaliacao", max_digits=3, decimal_places=2, default=Decimal("5.0"),
+        help_text="Media das avaliacoes; recalculada a cada review (denormalizada).",
+    )
+    review_count = models.PositiveIntegerField("numero de avaliacoes", default=0)
     sales_count = models.PositiveIntegerField("vendas", default=0)
+
+    # Promocao: ligada a oferta real (apps.promotions.Offer). Flag denormalizado
+    # no produto para filtrar/listar sem JOIN.
+    is_on_promotion = models.BooleanField("em promocao", default=False)
 
     # Específicos de impressão 3D
     material = models.CharField("material", max_length=60, default="PLA")
@@ -95,6 +106,8 @@ class Product(TimeStampedModel):
             models.Index(fields=["is_active", "is_featured"]),
             models.Index(fields=["category", "is_active"]),
             models.Index(fields=["-sales_count"]),
+            models.Index(fields=["is_active", "is_on_promotion"]),
+            models.Index(fields=["seller", "-created_at"]),
         ]
 
     def __str__(self) -> str:
@@ -122,3 +135,66 @@ class Product(TimeStampedModel):
     @property
     def is_new(self) -> bool:
         return self.created_at >= timezone.now() - timedelta(days=NEW_PRODUCT_WINDOW_DAYS)
+
+    @property
+    def cover_image_url(self) -> str:
+        """Primeira foto da galeria; cai para o upload/URL legado do produto."""
+        first = self.images.first() if self.pk else None
+        if first:
+            return first.url
+        if self.image:
+            return self.image.url
+        return self.image_url or ""
+
+
+class ProductImage(TimeStampedModel):
+    """Foto da galeria do produto (ate 4 por produto; regra no service/form)."""
+
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="images", verbose_name="produto"
+    )
+    image = models.ImageField("imagem", upload_to="products/gallery/", blank=True)
+    image_url = models.URLField("imagem (URL externa)", max_length=500, blank=True)
+    alt = models.CharField("descricao da imagem", max_length=140, blank=True)
+    position = models.PositiveSmallIntegerField("posicao", default=0)
+
+    class Meta:
+        verbose_name = "foto do produto"
+        verbose_name_plural = "fotos do produto"
+        ordering = ["position", "id"]
+        indexes = [models.Index(fields=["product", "position"])]
+
+    def __str__(self) -> str:
+        return f"Foto {self.position + 1} de {self.product_id}"
+
+    @property
+    def url(self) -> str:
+        return self.image.url if self.image else (self.image_url or "")
+
+
+class Review(TimeStampedModel):
+    """Avaliacao de produto. Regra: so quem comprou o produto pode avaliar."""
+
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="reviews", verbose_name="produto"
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reviews", verbose_name="autor"
+    )
+    rating = models.PositiveSmallIntegerField(
+        "nota", default=5, validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    title = models.CharField("titulo", max_length=120, blank=True)
+    comment = models.TextField("comentario", blank=True)
+
+    class Meta:
+        verbose_name = "avaliacao"
+        verbose_name_plural = "avaliacoes"
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["product", "author"], name="uniq_review_per_user_product")
+        ]
+        indexes = [models.Index(fields=["product", "-created_at"])]
+
+    def __str__(self) -> str:
+        return f"{self.rating}/5 — {self.product_id} por {self.author_id}"

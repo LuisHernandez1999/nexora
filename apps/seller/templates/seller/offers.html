@@ -1,0 +1,50 @@
+{% extends "seller/base.html" %}
+{% block title %}Minhas ofertas{% endblock %}
+{% block content %}
+<section class="section" style="padding-top:1.8rem">
+  <div class="container" style="max-width:880px">
+    <div class="page-head reveal">
+      <span class="eyebrow">Painel · {{ request.user.store_name|default:"Sua loja" }}</span>
+      <h1>Minhas ofertas</h1>
+      <p>Publique uma promoção real ligada a um produto seu. O valor promocional vira o preço enquanto a oferta estiver ativa.</p>
+    </div>
+
+    <div class="card reveal">
+      <h3 style="margin:0">Nova oferta</h3>
+      <form method="post" class="mt-2">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="errors" style="margin-bottom:.8rem">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="form-grid">
+          {% include "core/partials/field.html" with field=form.product %}
+          {% include "core/partials/field.html" with field=form.original_price %}
+          {% include "core/partials/field.html" with field=form.promo_price %}
+        </div>
+        <button class="btn btn-primary mt-1" type="submit">
+          <svg class="icon"><use href="#i-tag"></use></svg> Publicar oferta</button>
+      </form>
+    </div>
+
+    <div class="card reveal mt-3">
+      {% include "core/partials/section_head.html" with title="Ofertas publicadas" %}
+      {% if offers %}
+        <div class="seller-offers mt-2">
+          {% for offer in offers %}
+            <div class="seller-offer-row">
+              <span class="seller-offer-row__name">{{ offer.product_name }}</span>
+              <span class="text-dim">{{ offer.category_name }}</span>
+              <span class="price-old">{{ offer.original_display }}</span>
+              <span class="price">{{ offer.promo_display }}</span>
+              <span class="badge badge-discount" style="position:static">-{{ offer.discount_pct }}%</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state" style="padding:2rem 0">
+          <div class="ph"><svg class="icon"><use href="#i-tag"></use></svg></div>
+          <p class="text-muted">Você ainda não publicou ofertas.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

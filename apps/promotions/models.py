@@ -52,6 +52,69 @@ class Promotion(TimeStampedModel):
         return self.title
 
 
+class OfferQuerySet(models.QuerySet):
+    def live(self):
+        now = timezone.now()
+        return (
+            self.filter(is_active=True)
+            .filter(models.Q(starts_at__isnull=True) | models.Q(starts_at__lte=now))
+            .filter(models.Q(ends_at__isnull=True) | models.Q(ends_at__gte=now))
+        )
+
+    def with_relations(self):
+        return (
+            self.select_related("product", "product__category", "category")
+            .prefetch_related("product__images")
+        )
+
+
+class Offer(TimeStampedModel):
+    """Oferta real de um produto: valor original x valor promocional.
+
+    Diferente de Promotion (banner de marketing), a Offer aponta para um
+    produto concreto do vendedor e sincroniza o flag/preco do catalogo.
+    """
+
+    product = models.ForeignKey(
+        "catalog.Product", on_delete=models.CASCADE, related_name="offers", verbose_name="produto"
+    )
+    category = models.ForeignKey(
+        "catalog.Category", on_delete=models.PROTECT, related_name="offers", verbose_name="categoria"
+    )
+    original_price = models.DecimalField("valor original", max_digits=10, decimal_places=2)
+    promo_price = models.DecimalField("valor promocional", max_digits=10, decimal_places=2)
+
+    is_active = models.BooleanField("ativa", default=True)
+    starts_at = models.DateTimeField("inicio", null=True, blank=True)
+    ends_at = models.DateTimeField("fim", null=True, blank=True)
+    order = models.PositiveIntegerField("ordem", default=0)
+
+    objects = OfferQuerySet.as_manager()
+
+    class Meta:
+        verbose_name = "oferta"
+        verbose_name_plural = "ofertas"
+        ordering = ["order", "-created_at"]
+        indexes = [
+            models.Index(fields=["is_active", "-created_at"]),
+            models.Index(fields=["category", "is_active"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"Oferta — {self.product_id} ({self.promo_price})"
+
+    @property
+    def discount_pct(self) -> int:
+        if not self.original_price or self.promo_price >= self.original_price:
+            return 0
+        diff = (self.original_price - self.promo_price) / self.original_price
+        return int(round(diff * 100))
+
+    @property
+    def savings(self) -> Decimal:
+        return max(Decimal("0"), self.original_price - self.promo_price)
+
+
 class Coupon(TimeStampedModel):
     class DiscountType(models.TextChoices):
         PERCENT = "percent", "Percentual (%)"

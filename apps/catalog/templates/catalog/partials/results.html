@@ -1,0 +1,40 @@
+{# Resultados do catalogo: cabecalho + grid + paginacao (pagina cheia e AJAX). #}
+<div class="results-head reveal">
+  <div>
+    <span class="eyebrow">{% if active_category %}{{ active_category.name }}{% elif query %}Resultado da busca{% else %}Catálogo completo{% endif %}</span>
+    <h2 class="section-title">
+      {% if query %}“{{ query }}”{% elif active_category %}{{ active_category.name }}{% else %}Todos os produtos{% endif %}
+    </h2>
+  </div>
+  <span class="results-count">{{ total }} produto{{ total|pluralize }}</span>
+</div>
+
+{% if products %}
+  <div class="product-grid">
+    {% for product in products %}
+      <div class="reveal" style="--i:{{ forloop.counter0 }}">{% include "catalog/partials/product_card.html" with product=product %}</div>
+    {% endfor %}
+  </div>
+
+  {% if page_obj.has_other_pages %}
+    <nav class="pagination" data-ajax-pagination>
+      {% if page_obj.has_previous %}
+        <a href="?{% if active_category %}categoria={{ active_category.slug }}&{% endif %}{% if query %}q={{ query }}&{% endif %}sort={{ current_sort }}&page={{ page_obj.previous_page_number }}"><svg class="icon"><use href="#i-chevron-left"></use></svg></a>
+      {% endif %}
+      {% for num in page_obj.paginator.page_range %}
+        {% if num == page_obj.number %}<span class="current">{{ num }}</span>
+        {% else %}<a href="?{% if active_category %}categoria={{ active_category.slug }}&{% endif %}{% if query %}q={{ query }}&{% endif %}sort={{ current_sort }}&page={{ num }}">{{ num }}</a>{% endif %}
+      {% endfor %}
+      {% if page_obj.has_next %}
+        <a href="?{% if active_category %}categoria={{ active_category.slug }}&{% endif %}{% if query %}q={{ query }}&{% endif %}sort={{ current_sort }}&page={{ page_obj.next_page_number }}"><svg class="icon"><use href="#i-chevron-right"></use></svg></a>
+      {% endif %}
+    </nav>
+  {% endif %}
+{% else %}
+  <div class="empty-state">
+    <div class="ph"><svg class="icon"><use href="#i-search"></use></svg></div>
+    <h3>Nada encontrado</h3>
+    <p class="text-muted">Tente outro termo ou remova os filtros.</p>
+    <a href="{% url 'catalog:product_list' %}" class="btn btn-ghost mt-2">Limpar filtros</a>
+  </div>
+{% endif %}

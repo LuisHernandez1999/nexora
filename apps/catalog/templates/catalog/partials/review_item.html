@@ -1,0 +1,16 @@
+{# Item de avaliacao. Param: review (catalog.mappers.ReviewMapper) #}
+<article class="review-item reveal" data-review-id="{{ review.id }}">
+  <div class="review-head">
+    <span class="review-avatar" aria-hidden="true">{{ review.monogram }}</span>
+    <div class="review-meta">
+      <strong class="review-author">{{ review.author_name }}</strong>
+      <span class="review-stars">
+        {% for _ in review.stars_full %}<svg class="icon"><use href="#i-star"></use></svg>{% endfor %}
+        {% for _ in review.stars_empty %}<svg class="icon star-empty"><use href="#i-star"></use></svg>{% endfor %}
+      </span>
+    </div>
+    <time class="review-date text-dim">{{ review.created_at|date:"d/m/Y" }}</time>
+  </div>
+  {% if review.title %}<h4 class="review-title">{{ review.title }}</h4>{% endif %}
+  {% if review.comment %}<p class="text-muted review-comment">{{ review.comment }}</p>{% endif %}
+</article>

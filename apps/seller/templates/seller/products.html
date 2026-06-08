@@ -3,10 +3,14 @@
 {% block content %}
 <section class="section" style="padding-top:1.8rem">
   <div class="container">
-    <div class="page-head reveal">
-      <span class="eyebrow">Painel · {{ request.user.store_name|default:"Sua loja" }}</span>
-      <h1>Meus Produtos</h1>
-      <p>Gerencie os itens que a sua loja vende na {{ SITE.name }}.</p>
+    <div class="page-head reveal" style="display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap">
+      <div>
+        <span class="eyebrow">Painel · {{ request.user.store_name|default:"Sua loja" }}</span>
+        <h1>Meus Produtos</h1>
+        <p>Gerencie os itens que a sua loja vende na {{ SITE.name }}.</p>
+      </div>
+      <a href="{% url 'seller:product_new' %}" class="btn btn-primary">
+        <svg class="icon"><use href="#i-plus"></use></svg> Novo produto</a>
     </div>
 
     <div class="stat-row reveal" style="margin-bottom:2rem">
@@ -23,16 +27,21 @@
               <span class="thumb-mono" style="--acc:{{ p.accent }}">{{ p.monogram }}</span>
               {% if p.image_url %}<img src="{{ p.image_url }}" alt="{{ p.name }}" loading="lazy"
                    onerror="this.onerror=null;this.src='https://picsum.photos/seed/{{ p.slug }}/600/600'">{% endif %}
-              {% if p.has_discount %}<span class="badge badge-discount">-{{ p.discount_pct }}%</span>{% endif %}
-              {% if not p.in_stock %}<span class="badge badge-soft">Esgotado</span>{% endif %}
+              {% if p.is_on_promotion %}<span class="badge badge-discount">-{{ p.discount_pct }}%</span>{% endif %}
+              {% if not p.is_active %}<span class="badge badge-soft">Rascunho</span>{% elif not p.in_stock %}<span class="badge badge-soft">Esgotado</span>{% endif %}
             </div>
             <div class="product-body">
-              <span class="product-cat">{{ p.category_name }}</span>
+              <span class="product-cat">{{ p.category_name }} · {{ p.image_count }}/4 fotos</span>
               <span class="product-name">{{ p.name }}</span>
               <div class="price-row"><span class="price">{{ p.price_display }}</span>
                 {% if p.has_discount %}<span class="price-old">{{ p.old_price_display }}</span>{% endif %}</div>
-              <div class="product-actions">
-                <a href="{{ p.url }}" class="btn btn-ghost btn-sm btn-block">Ver na loja</a>
+              <div class="seller-row__meta text-dim" style="font-size:.8rem">
+                <span>{{ p.stock }} em estoque</span>
+                <span>· <svg class="icon"><use href="#i-star"></use></svg> {{ p.rating }} ({{ p.review_count }})</span>
+              </div>
+              <div class="product-actions" style="display:flex;gap:.5rem">
+                <a href="{{ p.edit_url }}" class="btn btn-primary btn-sm" style="flex:1">Editar</a>
+                <a href="{{ p.url }}" class="btn btn-ghost btn-sm" style="flex:1">Ver na loja</a>
               </div>
             </div>
           </article>
@@ -42,8 +51,9 @@
       <div class="empty-state reveal">
         <div class="ph"><svg class="icon"><use href="#i-box"></use></svg></div>
         <h3>Você ainda não tem produtos</h3>
-        <p class="text-muted">Quando você cadastrar produtos para a sua loja, eles aparecem aqui.</p>
-        <a href="{% url 'catalog:product_list' %}" class="btn btn-primary mt-2">Ver a loja</a>
+        <p class="text-muted">Cadastre seu primeiro produto com até 4 fotos e comece a vender.</p>
+        <a href="{% url 'seller:product_new' %}" class="btn btn-primary mt-2">
+          <svg class="icon"><use href="#i-plus"></use></svg> Cadastrar produto</a>
       </div>
     {% endif %}
   </div>

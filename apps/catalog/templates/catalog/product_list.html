@@ -1,35 +1,83 @@
 {% extends "base.html" %}
 {% block title %}Catálogo · {{ SITE.name }}{% endblock %}
 {% block content %}
-<section class="section" style="padding-top:1.8rem">
+
+<!-- ===================== HERO CARROSSEL (auto) ===================== -->
+<section class="section catalog-hero" data-landing-only{% if active_category or query or page_obj.number > 1 %} hidden{% endif %} style="padding:1.4rem 0 0">
+  <div class="container">
+    <div class="carousel reveal" data-carousel>
+      <div class="carousel-track">
+        <div class="slide">
+          <div class="bg"><img src="https://images.unsplash.com/photo-1608889175123-8ee362201f81?w=1600&h=720&fit=crop&q=80" alt=""></div>
+          <div class="content">
+            <span class="eyebrow">Coleção de heróis</span>
+            <h2 class="section-title">Action figures impressas com capricho de maker</h2>
+            <p class="text-muted">Bonecos articulados e estatuetas com acabamento premium — do seu personagem favorito.</p>
+            <div class="mt-2"><a href="?categoria=action-figures" class="btn btn-primary">Ver coleção <svg class="icon icon-arrow"><use href="#i-arrow-right"></use></svg></a></div>
+          </div>
+        </div>
+        <div class="slide">
+          <div class="bg"><img src="https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=1600&h=720&fit=crop&q=80" alt=""></div>
+          <div class="content">
+            <span class="eyebrow">Setup & Gadgets</span>
+            <h2 class="section-title">Acessórios 3D que deixam sua mesa com cara de pro</h2>
+            <p class="text-muted">Suportes, docks e organizadores que combinam função e estética gamer.</p>
+            <div class="mt-2"><a href="?categoria=gadgets" class="btn btn-primary">Explorar gadgets <svg class="icon icon-arrow"><use href="#i-arrow-right"></use></svg></a></div>
+          </div>
+        </div>
+        <div class="slide">
+          <div class="bg"><img src="https://images.unsplash.com/photo-1558060370-d644479cb6f7?w=1600&h=720&fit=crop&q=80" alt=""></div>
+          <div class="content">
+            <span class="eyebrow">Colecionáveis</span>
+            <h2 class="section-title">Miniaturas e peças retrô para quem coleciona</h2>
+            <p class="text-muted">Detalhes precisos, cores fiéis e aquele charme de coleção na sua estante.</p>
+            <div class="mt-2"><a href="?sort=popular" class="btn btn-primary">Ver mais vendidos <svg class="icon icon-arrow"><use href="#i-arrow-right"></use></svg></a></div>
+          </div>
+        </div>
+      </div>
+      <button class="carousel-arrow prev" data-carousel-prev aria-label="Anterior"><svg class="icon"><use href="#i-chevron-left"></use></svg></button>
+      <button class="carousel-arrow next" data-carousel-next aria-label="Próximo"><svg class="icon"><use href="#i-chevron-right"></use></svg></button>
+      <div class="carousel-dots" data-carousel-dots></div>
+    </div>
+
+    <div class="catalog-benefits reveal">
+      <div class="cbi"><span class="cbi-ico"><svg class="icon"><use href="#i-delivery"></use></svg></span><div><b>Frete grátis</b><span>acima de R$ 199</span></div></div>
+      <div class="cbi"><span class="cbi-ico"><svg class="icon"><use href="#i-pix"></use></svg></span><div><b>+10% no PIX</b><span>desconto extra</span></div></div>
+      <div class="cbi"><span class="cbi-ico"><svg class="icon"><use href="#i-bolt"></use></svg></span><div><b>Impressão sob demanda</b><span>feito pra você</span></div></div>
+      <div class="cbi"><span class="cbi-ico"><svg class="icon"><use href="#i-star"></use></svg></span><div><b>Avaliações reais</b><span>de quem comprou</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:1.7rem">
   <div class="container">
 
     <!-- ===================== BUSCA ===================== -->
-    <form method="get" action="{% url 'catalog:product_list' %}" class="search-bar reveal">
+    <form method="get" action="{% url 'catalog:product_list' %}" class="search-bar reveal" id="catalogSearch">
       {% if active_category %}<input type="hidden" name="categoria" value="{{ active_category.slug }}">{% endif %}
       <input type="hidden" name="sort" value="{{ current_sort }}">
       <input type="search" name="q" value="{{ query }}" placeholder="Buscar action figures, gadgets, réplicas…" aria-label="Buscar no catálogo">
       <button class="btn btn-primary search-go" type="submit" aria-label="Buscar"><svg class="icon"><use href="#i-search"></use></svg></button>
     </form>
 
-    <!-- ===================== FILTRO POR CATEGORIA ===================== -->
-    <div class="filter-bar reveal">
-      <div class="cat-pills">
+    <!-- ===================== FILTROS ===================== -->
+    <div class="filter-panel reveal">
+      <div class="cat-pills" data-pills>
         <a class="pill {% if not active_category %}active{% endif %}" href="?sort={{ current_sort }}{% if query %}&q={{ query }}{% endif %}">
           <svg class="icon"><use href="#i-layers"></use></svg> Todas
         </a>
         {% for cat in categories %}
-          <a class="pill {% if active_category.slug == cat.slug %}active{% endif %}" href="?categoria={{ cat.slug }}&sort={{ current_sort }}{% if query %}&q={{ query }}{% endif %}">
+          <a class="pill {% if active_category.slug == cat.slug %}active{% endif %}" href="?categoria={{ cat.slug }}&sort={{ current_sort }}{% if query %}&q={{ query }}{% endif %}" style="--pill-accent:{{ cat.accent }}">
             <svg class="icon" style="color:{{ cat.accent }}"><use href="#i-{{ cat.icon }}"></use></svg> {{ cat.name }}
           </a>
         {% endfor %}
       </div>
-      <form method="get" class="tools">
+      <form method="get" class="tools" id="catalogTools">
         {% if active_category %}<input type="hidden" name="categoria" value="{{ active_category.slug }}">{% endif %}
         {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
         <input type="number" name="min" placeholder="mín R$" value="{{ request.GET.min }}" step="0.01">
         <input type="number" name="max" placeholder="máx R$" value="{{ request.GET.max }}" step="0.01">
-        <select name="sort" onchange="this.form.submit()">
+        <select name="sort" aria-label="Ordenar">
           <option value="relevance" {% if current_sort == "relevance" %}selected{% endif %}>Relevância</option>
           <option value="new" {% if current_sort == "new" %}selected{% endif %}>Mais novos</option>
           <option value="popular" {% if current_sort == "popular" %}selected{% endif %}>Mais vendidos</option>
@@ -40,40 +88,88 @@
       </form>
     </div>
 
-    <p class="text-dim reveal" style="margin:1.2rem 0 1rem;font-size:.9rem">
-      {{ total }} produto{{ total|pluralize }}{% if active_category %} em {{ active_category.name }}{% endif %}{% if query %} para “{{ query }}”{% endif %}
-    </p>
-
-    <!-- ===================== PRODUTOS (cards) ===================== -->
-    {% if products %}
-      <div class="product-grid">
-        {% for product in products %}
-          <div class="reveal" style="--i:{{ forloop.counter0 }}">{% include "catalog/partials/product_card.html" with product=product %}</div>
-        {% endfor %}
-      </div>
-
-      {% if page_obj.has_other_pages %}
-        <nav class="pagination">
-          {% if page_obj.has_previous %}
-            <a href="?{% if active_category %}categoria={{ active_category.slug }}&{% endif %}sort={{ current_sort }}&page={{ page_obj.previous_page_number }}"><svg class="icon"><use href="#i-chevron-left"></use></svg></a>
-          {% endif %}
-          {% for num in page_obj.paginator.page_range %}
-            {% if num == page_obj.number %}<span class="current">{{ num }}</span>
-            {% else %}<a href="?{% if active_category %}categoria={{ active_category.slug }}&{% endif %}sort={{ current_sort }}&page={{ num }}">{{ num }}</a>{% endif %}
+    <!-- ===================== MAIS VENDIDOS (landing) ===================== -->
+    <div class="catalog-section catalog-extra" data-landing-only{% if active_category or query or page_obj.number > 1 %} hidden{% endif %}>
+      {% if best_sellers %}
+        {% include "core/partials/section_head.html" with eyebrow="Destaques" title="Mais vendidos da semana" %}
+        <div class="product-grid">
+          {% for product in best_sellers %}
+            <div class="reveal" style="--i:{{ forloop.counter0 }}">{% include "catalog/partials/product_card.html" with product=product %}</div>
           {% endfor %}
-          {% if page_obj.has_next %}
-            <a href="?{% if active_category %}categoria={{ active_category.slug }}&{% endif %}sort={{ current_sort }}&page={{ page_obj.next_page_number }}"><svg class="icon"><use href="#i-chevron-right"></use></svg></a>
-          {% endif %}
-        </nav>
+        </div>
       {% endif %}
-    {% else %}
-      <div class="empty-state">
-        <div class="ph"><svg class="icon"><use href="#i-search"></use></svg></div>
-        <h3>Nada encontrado</h3>
-        <p class="text-muted">Tente outro termo ou remova os filtros.</p>
-        <a href="{% url 'catalog:product_list' %}" class="btn btn-ghost mt-2">Limpar filtros</a>
-      </div>
-    {% endif %}
+    </div>
+
+    <!-- ===================== RESULTADOS (AJAX) ===================== -->
+    <div class="catalog-section" id="catalogResults" aria-live="polite">
+      {% include "catalog/partials/results.html" %}
+    </div>
   </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+jQuery(function ($) {
+  var $results = $('#catalogResults');
+  if (!$results.length) return;
+  var base = "{% url 'catalog:product_list' %}";
+
+  function qp(url) { return new URLSearchParams((url.split('?')[1] || '')); }
+
+  function syncActive(url) {
+    var cat = qp(url).get('categoria') || '';
+    $('[data-pills] .pill').each(function () {
+      var pc = qp($(this).attr('href')).get('categoria') || '';
+      $(this).toggleClass('active', pc === cat);
+    });
+  }
+  function toggleLanding(url) {
+    var p = qp(url);
+    var landing = !p.get('categoria') && !p.get('q') &&
+                  (!p.get('page') || p.get('page') === '1') &&
+                  (!p.get('sort') || p.get('sort') === 'relevance');
+    $('[data-landing-only]').each(function () { this.hidden = !landing; });
+  }
+
+  function load(url, push) {
+    $results.addClass('is-loading');
+    $.get(url)
+      .done(function (html) {
+        $results.html(html);
+        $results.find('.reveal').addClass('is-visible');   // anima itens novos
+        syncActive(url);
+        toggleLanding(url);
+        if (push) history.pushState({ u: url }, '', url);
+        var top = $results.offset().top - 92;
+        if ($(window).scrollTop() > top) $('html,body').animate({ scrollTop: top }, 240);
+      })
+      .always(function () { $results.removeClass('is-loading'); });
+  }
+
+  // pills de categoria + paginacao (delegado: a paginacao e trocada)
+  $(document).on('click', '[data-pills] a, #catalogResults [data-ajax-pagination] a', function (e) {
+    e.preventDefault();
+    load($(this).attr('href'), true);
+  });
+  // busca
+  $('#catalogSearch').on('submit', function (e) {
+    e.preventDefault();
+    load(base + '?' + $(this).serialize(), true);
+  });
+  // ordenacao / preço
+  $('#catalogTools').on('submit', function (e) {
+    e.preventDefault();
+    load(base + '?' + $(this).serialize(), true);
+  });
+  $('#catalogTools select[name=sort]').on('change', function () {
+    $('#catalogTools').trigger('submit');
+  });
+  // voltar/avançar do navegador
+  window.addEventListener('popstate', function () {
+    load(location.pathname + location.search, false);
+  });
+});
+</script>
 {% endblock %}

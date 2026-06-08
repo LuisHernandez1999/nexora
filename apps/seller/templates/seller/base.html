@@ -26,7 +26,8 @@
 
       {% with vn=request.resolver_match.view_name %}
       <nav class="main-nav">
-        <a href="{% url 'seller:products' %}" class="{% if vn == 'seller:products' %}active{% endif %}">Meus Produtos</a>
+        <a href="{% url 'seller:products' %}" class="{% if vn == 'seller:products' or vn == 'seller:product_new' or vn == 'seller:product_edit' %}active{% endif %}">Meus Produtos</a>
+        <a href="{% url 'seller:offers' %}" class="{% if vn == 'seller:offers' %}active{% endif %}">Ofertas</a>
         <a href="{% url 'seller:orders' %}" class="{% if vn == 'seller:orders' %}active{% endif %}">Pedidos</a>
         <a href="{% url 'seller:tracking' %}" class="{% if vn == 'seller:tracking' %}active{% endif %}">Rastreio</a>
       </nav>

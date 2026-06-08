@@ -1,0 +1,6 @@
+{# Cabecalho de pagina reutilizavel. Params: eyebrow, title, subtitle, center #}
+<div class="page-head reveal{% if center %} page-head--center{% endif %}">
+  {% if eyebrow %}<span class="eyebrow">{{ eyebrow }}</span>{% endif %}
+  <h1>{{ title }}</h1>
+  {% if subtitle %}<p>{{ subtitle }}</p>{% endif %}
+</div>

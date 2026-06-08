@@ -1,6 +1,19 @@
 from django.contrib import admin
 
-from .models import Coupon, Promotion
+from .models import Coupon, Offer, Promotion
+
+
+@admin.register(Offer)
+class OfferAdmin(admin.ModelAdmin):
+    list_display = (
+        "product", "category", "original_price", "promo_price",
+        "discount_pct", "is_active", "order", "starts_at", "ends_at",
+    )
+    list_filter = ("is_active", "category")
+    list_editable = ("is_active", "order")
+    search_fields = ("product__name",)
+    autocomplete_fields = ("product", "category")
+    readonly_fields = ("discount_pct",)
 
 
 @admin.register(Promotion)

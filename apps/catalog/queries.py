@@ -5,11 +5,11 @@ lançamentos) são cacheadas; a busca filtrada usa TTL curto.
 """
 from __future__ import annotations
 
-from django.db.models import Count, F, Q
+from django.db.models import Avg, Count, F, Q
 
 from apps.core import cache as cache_utils
 
-from .models import Category, Product
+from .models import Category, Product, Review
 
 NS_FEATURED = "catalog:featured"
 NS_NEW = "catalog:new"
@@ -90,6 +90,41 @@ class ProductQuery:
         )
 
     @staticmethod
+    def detail_with_gallery(slug: str) -> Product | None:
+        """Detalhe com galeria pre-carregada (sem cache: objeto + prefetch)."""
+        return (
+            Product.objects.active()
+            .with_relations()
+            .prefetch_related("images")
+            .filter(slug=slug)
+            .first()
+        )
+
+    @staticmethod
+    def api_queryset(*, category_slug=None, on_promotion=None):
+        """Queryset base da API (a paginacao por cursor fatia). Campos enxutos."""
+        qs = (
+            Product.objects.active()
+            .with_relations()
+            .only(
+                "id", "name", "slug", "description", "price", "compare_at_price",
+                "image", "image_url", "rating", "review_count", "is_on_promotion",
+                "stock", "sales_count", "created_at",
+                "category__id", "category__name", "category__slug",
+                "category__icon", "category__accent",
+            )
+        )
+        if category_slug:
+            qs = qs.filter(category__slug=category_slug)
+        if on_promotion is not None:
+            qs = qs.filter(is_on_promotion=on_promotion)
+        return qs
+
+    @staticmethod
+    def owned_by(user, pk) -> Product | None:
+        return Product.objects.filter(pk=pk, seller=user).first()
+
+    @staticmethod
     def related(product: Product, limit: int = 4) -> list[Product]:
         def producer():
             qs = (
@@ -128,11 +163,42 @@ class ProductQuery:
         return qs.order_by(ordering, "-sales_count")
 
 
+class ReviewQuery:
+    @staticmethod
+    def for_product(product: Product):
+        """Avaliacoes do produto, autor pre-carregado (cursor pagina na API)."""
+        return (
+            Review.objects.filter(product=product)
+            .select_related("author")
+            .order_by("-created_at")
+        )
+
+    @staticmethod
+    def by_user_for_product(user, product) -> Review | None:
+        if not getattr(user, "is_authenticated", False):
+            return None
+        return Review.objects.filter(product=product, author=user).first()
+
+    @staticmethod
+    def aggregate_for_product(product_id) -> dict:
+        return Review.objects.filter(product_id=product_id).aggregate(
+            avg=Avg("rating"), n=Count("id")
+        )
+
+
 def invalidate_catalog_cache() -> None:
     """Limpa as listagens estáveis. Chamado pelos signals em save/delete."""
     cache_utils.invalidate(
         NS_CATEGORIES,
         cache_utils.build_key(NS_FEATURED, 8),
+        cache_utils.build_key(NS_FEATURED, 6),
         cache_utils.build_key(NS_NEW, 4),
         cache_utils.build_key(NS_NEW, 8),
+        cache_utils.build_key("catalog:onsale", 8),
     )
+
+
+def invalidate_product(slug: str) -> None:
+    """Limpa o cache do detalhe de um produto especifico."""
+    if slug:
+        cache_utils.invalidate(cache_utils.build_key(NS_PRODUCT, slug))

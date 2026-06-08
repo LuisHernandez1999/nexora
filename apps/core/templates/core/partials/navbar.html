@@ -15,6 +15,9 @@
       <a href="{% url 'catalog:product_list' %}" class="{% if vn == 'catalog:product_list' or vn == 'catalog:product_detail' %}active{% endif %}">Catálogo</a>
       <a href="{% url 'promotions:list' %}" class="{% if vn == 'promotions:list' %}active{% endif %}">Promoções</a>
       <a href="{% url 'core:about' %}" class="{% if vn == 'core:about' or vn == 'core:home' %}active{% endif %}">Sobre</a>
+      {% if user.is_authenticated and user.is_seller %}
+        <a href="{% url 'seller:products' %}" class="nav-seller">Painel</a>
+      {% endif %}
     </nav>
     {% endwith %}
 

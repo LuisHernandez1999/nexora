@@ -52,17 +52,19 @@
         </div>
         {% endif %}
 
-        <!-- mais ofertas (sem repetir o flash sale) -->
+        <!-- ofertas reais cadastradas pelo vendedor (paginação por cursor) -->
         <div class="reveal" style="margin-top:2.4rem">
           <div class="block-head">
-            <span class="block-title">Mais ofertas</span>
+            <span class="block-title">Ofertas dos vendedores</span>
             <a href="{% url 'catalog:product_list' %}?sort=popular" class="link">Ver catálogo <svg class="icon icon-arrow"><use href="#i-arrow-right"></use></svg></a>
           </div>
-          {% if on_sale|slice:"3:" %}
-            <div class="product-grid">
-              {% for product in on_sale|slice:"3:" %}
-                <div class="reveal" style="--i:{{ forloop.counter0 }}">{% include "catalog/partials/product_card.html" with product=product %}</div>
-              {% endfor %}
+          {% if offers %}
+            <div class="product-grid offers-grid" data-offers-grid>
+              {% for offer in offers %}{% include "promotions/partials/offer_card.html" with offer=offer %}{% endfor %}
+            </div>
+            <div class="load-more" data-offers-loader data-endpoint="{% url 'api:offers' %}">
+              <button class="btn btn-ghost" type="button" data-load-btn>Carregar mais ofertas <svg class="icon icon-arrow"><use href="#i-arrow-right"></use></svg></button>
+              <p class="text-dim load-more__end" data-load-end hidden>Você viu todas as ofertas ✨</p>
             </div>
           {% else %}
             <div class="empty-state">

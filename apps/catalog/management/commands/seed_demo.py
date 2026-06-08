@@ -8,12 +8,45 @@ from __future__ import annotations
 from datetime import timedelta
 from decimal import Decimal
 
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from django.utils.text import slugify
 
-from apps.catalog.models import Category, Product
-from apps.promotions.models import Coupon, Promotion
+from apps.catalog.models import Category, Product, ProductImage, Review
+from apps.promotions.models import Coupon, Offer, Promotion
+
+User = get_user_model()
+
+# Fotos reais (Unsplash CDN), verificadas e mapeadas por categoria.
+# A capa do produto sai da galeria; sempre carregam (sem placeholder instavel).
+CATEGORY_IMAGES = {
+    "Action Figures": ["1608889175123-8ee362201f81", "1558060370-d644479cb6f7",
+                       "1518946222227-364f22132616", "1535378917042-10a22c95931a"],
+    "Utensílios": ["1550009158-9ebf69173e03", "1572635196237-14b3f281503f", "1610945265064-0e34e5519bbf"],
+    "Decoração": ["1593305841991-05c297ba4575", "1612036782180-6f0b6cd846fe", "1580927752452-89d86da3fa0a"],
+    "Gadgets": ["1517336714731-489689fd1ca8", "1607462109225-6b64ae2dd3cb", "1526170375885-4d8ecf77b99f",
+               "1610945265064-0e34e5519bbf", "1580927752452-89d86da3fa0a"],
+    "Cosplay & Props": ["1608889175123-8ee362201f81", "1535378917042-10a22c95931a", "1558060370-d644479cb6f7"],
+    "Jogos & Tabuleiro": ["1558060370-d644479cb6f7", "1518946222227-364f22132616", "1612036782180-6f0b6cd846fe"],
+    "Tabacaria": ["1526170375885-4d8ecf77b99f", "1558060370-d644479cb6f7", "1610945265064-0e34e5519bbf"],
+}
+_FALLBACK_IMAGES = CATEGORY_IMAGES["Gadgets"]
+
+
+def category_image(category_name: str, n: int = 0, w: int = 600, h: int = 600) -> str:
+    ids = CATEGORY_IMAGES.get(category_name) or _FALLBACK_IMAGES
+    return f"https://images.unsplash.com/photo-{ids[n % len(ids)]}?w={w}&h={h}&fit=crop&q=80"
+
+
+DEMO_REVIEWS = [
+    (5, "Impressao impecavel", "Acabamento perfeito, chegou rapido e bem embalado."),
+    (5, "Recomendo demais", "Qualidade acima do esperado pelo preco. Compro de novo."),
+    (4, "Muito bom", "Peca linda, so achei um pouco menor do que imaginei."),
+    (5, "Sensacional", "Ficou perfeito na minha setup. Caprichado nos detalhes."),
+    (4, "Valeu a compra", "Boa qualidade de material, recomendo para presente."),
+    (5, "Top demais", "Encaixes precisos e cor igual a da foto."),
+]
 
 CATEGORIES = [
     {"name": "Action Figures", "icon": "cube", "accent": "#6366f1",
@@ -167,4 +200,77 @@ class Command(BaseCommand):
                 },
             )
         self.stdout.write(self.style.SUCCESS(f"Cupons: {Coupon.objects.count()}"))
-        self.stdout.write(self.style.SUCCESS("\nSeed concluído! Rode o servidor e acesse /"))
+
+        # ---- vendedor demo + posse dos produtos ----
+        seller, made_seller = User.objects.get_or_create(
+            email="vendedor@l3dlabz.test",
+            defaults={"first_name": "Studio", "role": User.Role.VENDEDOR, "store_name": "Studio Maker 3D"},
+        )
+        if made_seller:
+            seller.set_password("l3dlabz123")
+            seller.save()
+        elif seller.role != User.Role.VENDEDOR:
+            seller.role = User.Role.VENDEDOR
+            seller.store_name = seller.store_name or "Studio Maker 3D"
+            seller.save(update_fields=["role", "store_name"])
+        Product.objects.filter(seller__isnull=True).update(seller=seller)
+        self.stdout.write(self.style.SUCCESS(f"Vendedor: {seller.email} (loja '{seller.store_name}')"))
+
+        # ---- galeria real (ate 4 fotos) para quem ainda nao tem ----
+        gallery = 0
+        for product in Product.objects.all():
+            if product.images.exists():
+                continue
+            for pos in range(3):
+                ProductImage.objects.create(
+                    product=product,
+                    image_url=category_image(product.category.name, product.id + pos),
+                    alt=product.name, position=pos,
+                )
+                gallery += 1
+        self.stdout.write(self.style.SUCCESS(f"Fotos de produto: {gallery}"))
+
+        # ---- ofertas reais (produto + valor original x promocional) ----
+        offers = 0
+        for product in Product.objects.filter(compare_at_price__isnull=False):
+            _, was = Offer.objects.get_or_create(
+                product=product,
+                defaults={
+                    "category": product.category,
+                    "original_price": product.compare_at_price,
+                    "promo_price": product.price,
+                    "is_active": True,
+                },
+            )
+            offers += was
+        self.stdout.write(self.style.SUCCESS(f"Ofertas novas: {offers} (total {Offer.objects.count()})"))
+
+        # ---- compradores demo + avaliacoes (so quem comprou avalia) ----
+        buyers = []
+        for i in range(1, 4):
+            buyer, made = User.objects.get_or_create(
+                email=f"cliente{i}@l3dlabz.test",
+                defaults={"first_name": f"Cliente {i}", "role": User.Role.CLIENTE},
+            )
+            if made:
+                buyer.set_password("l3dlabz123")
+                buyer.save()
+            buyers.append(buyer)
+
+        reviewed = 0
+        for idx, product in enumerate(Product.objects.order_by("id")[:8]):
+            for b, buyer in enumerate(buyers[: 1 + idx % 3]):
+                rating, title, comment = DEMO_REVIEWS[(idx + b) % len(DEMO_REVIEWS)]
+                _, made = Review.objects.get_or_create(
+                    product=product, author=buyer,
+                    defaults={"rating": rating, "title": title, "comment": comment},
+                )
+                reviewed += made
+        self.stdout.write(self.style.SUCCESS(f"Avaliacoes novas: {reviewed} (total {Review.objects.count()})"))
+
+        self.stdout.write(self.style.SUCCESS(
+            "\nSeed concluido!\n"
+            "  Vendedor: vendedor@l3dlabz.test / l3dlabz123 (painel em /vendedor/)\n"
+            "  Clientes: cliente1..3@l3dlabz.test / l3dlabz123\n"
+            "  Ofertas em /promocoes/ofertas/ | API em /api/ofertas/ e /api/produtos/"
+        ))

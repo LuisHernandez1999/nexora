@@ -12,6 +12,7 @@ class SellerQuery(BaseQuery):
         return (
             Product.objects.filter(seller=user)
             .select_related("category")
+            .prefetch_related("images")
             .order_by("-created_at")
         )
 

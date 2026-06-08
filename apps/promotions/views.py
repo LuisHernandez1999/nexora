@@ -3,10 +3,11 @@ from __future__ import annotations
 
 from django.shortcuts import render
 
-from .services import PromotionService
+from .services import OfferService, PromotionService
 
 
 def promotion_list(request):
+    """Pagina unica de promoções: flash sale + ofertas reais (cursor) + cupons."""
     from apps.catalog.services import CatalogService
 
     from .queries import CouponQuery
@@ -23,6 +24,7 @@ def promotion_list(request):
     context = {
         "promotions": PromotionService.list_active_promotions(limit=12),
         "on_sale": CatalogService.list_on_sale(limit=8),
+        "offers": OfferService.list_featured(limit=9),
         "categories": CatalogService.list_highlighted_categories(),
         "best_sellers": CatalogService.list_featured_products(limit=6),
         "coupons": coupons,

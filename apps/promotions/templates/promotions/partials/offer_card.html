@@ -1,0 +1,21 @@
+{# Card de oferta real. Param: offer (OfferMapper). Layout espelhado no JS (cursor). #}
+<a href="{{ offer.url }}" class="product-card offer-card reveal" data-offer-id="{{ offer.id }}" style="--acc:{{ offer.accent }}">
+  <div class="product-thumb" style="--ph-accent:{{ offer.accent }}">
+    <span class="thumb-mono" style="--acc:{{ offer.accent }}">{{ offer.monogram }}</span>
+    {% if offer.image_url %}
+      <img src="{{ offer.image_url }}" alt="{{ offer.product_name }}" loading="lazy"
+           onerror="this.onerror=null;this.src='https://picsum.photos/seed/{{ offer.product_slug }}/600/600'">
+    {% endif %}
+    <span class="badge badge-discount">-{{ offer.discount_pct }}%</span>
+  </div>
+  <div class="product-body">
+    <span class="product-cat">{{ offer.category_name }}</span>
+    <span class="product-name">{{ offer.product_name }}</span>
+    {% if offer.description %}<p class="offer-desc text-muted">{{ offer.description }}</p>{% endif %}
+    <div class="price-row">
+      <span class="price">{{ offer.promo_display }}</span>
+      <span class="price-old">{{ offer.original_display }}</span>
+    </div>
+    <span class="offer-save"><svg class="icon"><use href="#i-tag"></use></svg> Economize {{ offer.savings_display }}</span>
+  </div>
+</a>

@@ -10,11 +10,22 @@
     </nav>
 
     <div class="product-detail mt-2">
-      <div class="detail-media reveal">
-        <span class="thumb-mono" style="--acc:{{ product.accent }}">{{ product.monogram }}</span>
-        {% if product.image_url %}
-          <img src="{{ product.image_url }}" alt="{{ product.name }}"
-               onerror="this.onerror=null;this.src='https://picsum.photos/seed/{{ product.slug }}/800/800'">
+      <div class="detail-gallery reveal">
+        <div class="detail-media" data-gallery-main>
+          <span class="thumb-mono" style="--acc:{{ product.accent }}">{{ product.monogram }}</span>
+          {% if product.gallery %}
+            <img src="{{ product.gallery.0.url }}" alt="{{ product.name }}" data-gallery-img
+                 onerror="this.onerror=null;this.src='https://picsum.photos/seed/{{ product.slug }}/800/800'">
+          {% endif %}
+        </div>
+        {% if product.gallery|length > 1 %}
+          <div class="detail-thumbs" data-gallery-thumbs>
+            {% for img in product.gallery %}
+              <button type="button" class="detail-thumb{% if forloop.first %} active{% endif %}" data-src="{{ img.url }}" aria-label="Foto {{ forloop.counter }}">
+                <img src="{{ img.url }}" alt="{{ img.alt }}" loading="lazy">
+              </button>
+            {% endfor %}
+          </div>
         {% endif %}
       </div>
 
@@ -59,6 +70,56 @@
           {% endif %}
         </div>
       </div>
+    </div>
+
+    <!-- avaliações do produto (só quem comprou pode avaliar) -->
+    <div class="section reviews-section">
+      {% include "core/partials/section_head.html" with title="Avaliações" %}
+
+      <div class="reviews-summary reveal">
+        <div class="reviews-score">
+          <span class="reviews-avg">{{ review_summary.avg }}</span>
+          <span class="reviews-stars">
+            {% for i in "12345" %}<svg class="icon{% if forloop.counter > review_summary.rating_int %} star-empty{% endif %}"><use href="#i-star"></use></svg>{% endfor %}
+          </span>
+          <span class="text-dim">{{ review_summary.count }} avaliação{{ review_summary.count|pluralize }}</span>
+        </div>
+        <div class="reviews-cta">
+          {% if review_state.reason == "anon" %}
+            <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-ghost btn-sm">Entre para avaliar</a>
+          {% elif review_state.reason == "not_purchased" %}
+            <span class="chip">Só quem comprou pode avaliar</span>
+          {% elif review_state.reason == "done" %}
+            <span class="chip"><svg class="icon"><use href="#i-check"></use></svg> Você já avaliou</span>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if review_form %}
+        <form method="post" action="{% url 'catalog:review_create' product.id %}" class="card review-form reveal">
+          {% csrf_token %}
+          <div class="form-grid">
+            {% include "core/partials/field.html" with field=review_form.rating %}
+            {% include "core/partials/field.html" with field=review_form.title %}
+          </div>
+          {% include "core/partials/field.html" with field=review_form.comment %}
+          <button class="btn btn-primary mt-1" type="submit">Publicar avaliação</button>
+        </form>
+      {% endif %}
+
+      {% if reviews %}
+        <div class="reviews-list mt-2" data-reviews-grid>
+          {% for review in reviews %}{% include "catalog/partials/review_item.html" with review=review %}{% endfor %}
+        </div>
+        {% if review_summary.count > reviews|length %}
+          <div class="load-more" data-reviews-loader data-endpoint="{% url 'api:product_reviews' product.slug %}">
+            <button class="btn btn-ghost" type="button" data-load-btn>Ver mais avaliações</button>
+            <p class="text-dim load-more__end" data-load-end hidden>Fim das avaliações</p>
+          </div>
+        {% endif %}
+      {% else %}
+        <p class="text-muted reveal">Ainda sem avaliações. {% if review_state.can_review %}Seja o primeiro a avaliar!{% endif %}</p>
+      {% endif %}
     </div>
 
     {% if related %}

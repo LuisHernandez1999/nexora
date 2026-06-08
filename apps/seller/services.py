@@ -11,7 +11,7 @@ from .queries import SellerQuery
 class SellerService(BaseService):
     @staticmethod
     def products(user) -> list[dict]:
-        return ProductMapper.to_list(SellerQuery.products_for(user))
+        return [ProductMapper.to_seller_row(p) for p in SellerQuery.products_for(user)]
 
     @staticmethod
     def orders() -> list[dict]:

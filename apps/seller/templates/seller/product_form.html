@@ -1,0 +1,81 @@
+{% extends "seller/base.html" %}
+{% block title %}{% if mode == "edit" %}Editar produto{% else %}Novo produto{% endif %}{% endblock %}
+{% block content %}
+<section class="section" style="padding-top:1.8rem">
+  <div class="container" style="max-width:880px">
+    <div class="page-head reveal">
+      <span class="eyebrow">Painel · {{ request.user.store_name|default:"Sua loja" }}</span>
+      {% if mode == "edit" %}
+        <h1>Editar produto</h1>
+        <p>{{ product.name }}</p>
+      {% else %}
+        <h1>Novo produto</h1>
+        <p>Preencha os dados e adicione até 4 fotos. Só vendedores cadastram produtos.</p>
+      {% endif %}
+    </div>
+
+    <div class="card reveal">
+      <form method="post" enctype="multipart/form-data" class="seller-form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="errors" style="margin-bottom:1rem">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="form-grid">
+          {% include "core/partials/field.html" with field=form.name %}
+          {% include "core/partials/field.html" with field=form.category %}
+          {% include "core/partials/field.html" with field=form.price %}
+          {% include "core/partials/field.html" with field=form.compare_at_price %}
+          {% include "core/partials/field.html" with field=form.material %}
+          {% include "core/partials/field.html" with field=form.dimensions %}
+          {% include "core/partials/field.html" with field=form.stock %}
+          <div style="display:flex;align-items:end;padding-bottom:1.1rem">
+            {% include "core/partials/field.html" with field=form.is_active %}
+          </div>
+        </div>
+
+        {% include "core/partials/field.html" with field=form.description %}
+
+        <div class="seller-form__photos mt-2">
+          <h4 style="margin-bottom:.2rem">Fotos do produto <span class="text-dim">(até 4)</span></h4>
+          <p class="text-muted" style="font-size:.9rem;margin-top:0">
+            Envie arquivos ou cole URLs. A primeira foto vira a capa do produto.</p>
+
+          {% if gallery %}
+            <div class="gallery-current">
+              {% for img in gallery %}
+                <span class="gallery-thumb"><img src="{{ img.url }}" alt="{{ img.alt }}"></span>
+              {% endfor %}
+            </div>
+            <p class="text-dim" style="font-size:.82rem">Enviar novas fotos substitui as atuais.</p>
+          {% endif %}
+
+          <div class="photo-grid">
+            {% for i in "1234" %}
+              <div class="photo-slot">
+                <label class="photo-file">
+                  <svg class="icon"><use href="#i-plus"></use></svg>
+                  <span>Foto {{ forloop.counter }}</span>
+                  <input type="file" name="photos" accept="image/*">
+                </label>
+                <input type="url" name="photo_url" placeholder="ou URL da imagem">
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="seller-form__actions mt-3">
+          <button type="submit" class="btn btn-primary">
+            {% if mode == "edit" %}Salvar alterações{% else %}Cadastrar produto{% endif %}
+          </button>
+          <a href="{% url 'seller:products' %}" class="btn btn-ghost">Cancelar</a>
+          {% if mode == "edit" %}
+            <a href="{% url 'seller:offers' %}" class="link" style="margin-left:auto">
+              Colocar em promoção <svg class="icon icon-arrow"><use href="#i-arrow-right"></use></svg></a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

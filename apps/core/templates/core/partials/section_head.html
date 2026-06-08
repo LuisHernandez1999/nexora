@@ -1,0 +1,11 @@
+{# Cabecalho de secao. Params: eyebrow, title, link_url, link_label #}
+<div class="section-head reveal">
+  <div>
+    {% if eyebrow %}<span class="eyebrow">{{ eyebrow }}</span>{% endif %}
+    <h2 class="section-title">{{ title }}</h2>
+  </div>
+  {% if link_url %}
+    <a href="{{ link_url }}" class="link">{{ link_label|default:"Ver tudo" }}
+      <svg class="icon icon-arrow"><use href="#i-arrow-right"></use></svg></a>
+  {% endif %}
+</div>
