@@ -16,6 +16,7 @@ STATUS_TONE = {
     Order.Status.SHIPPED: "accent",
     Order.Status.DELIVERED: "success",
     Order.Status.CANCELLED: "danger",
+    Order.Status.ORCAMENTO: "warn",
 }
 
 

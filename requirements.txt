@@ -14,6 +14,10 @@ redis==6.4.0
 # --- Imagens / arquivos ---
 Pillow==11.2.1
 
+# --- Geração 3D do lithophane ---
+numpy==2.2.6
+trimesh==4.12.2
+
 # --- Filtros de catálogo ---
 django-filter==25.1
 

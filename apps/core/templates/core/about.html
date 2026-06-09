@@ -6,20 +6,18 @@
 <!-- ===================== HERO PROMOCIONAL ===================== -->
 <section class="section" style="padding-top:1.6rem;padding-bottom:0">
   <div class="container">
-    <div class="geek-hero reveal">
-      <div class="gh-bg">
-        <img src="https://loremflickr.com/1600/600/batman,figure,toy?lock=84" alt=""
-             onerror="this.onerror=null;this.src='https://picsum.photos/seed/l3dgeekhero4/1600/600'">
-      </div>
+    <div class="geek-hero geek-hero--clean reveal">
       <div class="gh-inner">
-        <span class="eyebrow">Especial Nerd</span>
-        <h1>A loja mais geek da impressão 3D</h1>
-        <span class="gh-off">Ofertas de até 50% OFF</span>
-        <p class="lead">Figuras de jogos, animes, filmes e sagas nerds — além de gadgets, decoração e tabacaria, tudo impresso sob demanda pela {{ SITE.name }}.</p>
+        <span class="eyebrow">Impressão 3D sob demanda</span>
+        <h1>Sua estante, impressa camada por camada</h1>
+        <p class="lead">Action figures, articulados, luminárias, miniaturas e decoração — produzidos sob demanda com o acabamento de laboratório da {{ SITE.name }}.</p>
         <div class="hero-cta">
-          <a href="{% url 'catalog:product_list' %}" class="gh-btn primary">Ver produtos <svg class="icon icon-arrow"><use href="#i-arrow-right"></use></svg></a>
-          <a href="{% url 'promotions:list' %}" class="gh-btn ghost">Ver ofertas</a>
+          <a href="{% url 'catalog:product_list' %}" class="gh-btn primary">Ver catálogo <svg class="icon icon-arrow"><use href="#i-arrow-right"></use></svg></a>
+          <a href="{% url 'lithophane:editor' %}" class="gh-btn ghost">Faça meu Lithophane</a>
         </div>
+      </div>
+      <div class="gh-deco" aria-hidden="true">
+        <span></span><span></span><span></span><span></span>
       </div>
     </div>
   </div>
@@ -31,11 +29,11 @@
     <div class="svc-cols reveal">
       <div class="svc">
         <span class="svc-ico"><svg class="icon"><use href="#i-delivery"></use></svg></span>
-        <div><h4>Entrega para todo Brasil</h4><p>Enviamos seu pedido para todo o país com rastreio. <strong>Frete grátis acima de R$ 199.</strong></p></div>
+        <div><h4>Entrega para todo Brasil</h4><p>Enviamos seu pedido para todo o país com <strong>rastreio</strong>. O frete é combinado no atendimento.</p></div>
       </div>
       <div class="svc">
         <span class="svc-ico"><svg class="icon"><use href="#i-installments"></use></svg></span>
-        <div><h4>Parcele em até 6x</h4><p>Em até <strong>6x</strong> no cartão (3x sem juros). No <strong>PIX</strong> você ganha <strong>10% de desconto</strong>.</p></div>
+        <div><h4>Produção sob demanda</h4><p>Cada peça é impressa sob encomenda. Você escolhe <strong>cor, tamanho e material</strong> — a gente orça e produz.</p></div>
       </div>
       <div class="svc">
         <span class="svc-ico"><svg class="icon"><use href="#i-support"></use></svg></span>
@@ -44,6 +42,55 @@
     </div>
   </div>
 </section>
+
+<!-- ===================== PROVA SOCIAL ===================== -->
+<section class="section" style="padding-top:1rem;padding-bottom:0">
+  <div class="container">
+    <div class="proof-strip reveal">
+      <div class="proof"><b>+2.400</b><span>peças impressas</span></div>
+      <div class="proof"><b>4.8★</b><span>média de avaliação</span></div>
+      <div class="proof"><b>48h</b><span>produção média</span></div>
+      <div class="proof"><b>Brasil</b><span>envio para todo o país</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CATEGORIAS ===================== -->
+{% if home_categories %}
+<section class="section" style="padding-bottom:0">
+  <div class="container">
+    <div class="section-head reveal">
+      <div><span class="eyebrow">Navegue por categoria</span><h2 class="section-title">O que você procura</h2></div>
+      <a href="{% url 'catalog:product_list' %}" class="link">Ver tudo <svg class="icon icon-arrow"><use href="#i-arrow-right"></use></svg></a>
+    </div>
+    <div class="cat-chips reveal">
+      {% for cat in home_categories %}
+        <a href="{% url 'catalog:product_list' %}?categoria={{ cat.slug }}" class="cat-chip">
+          <span class="cc-ic" style="--acc:{{ cat.accent }}"><svg class="icon"><use href="#i-{{ cat.icon }}"></use></svg></span>
+          <span>{{ cat.name }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ===================== DESTAQUES ===================== -->
+{% if featured %}
+<section class="section" style="padding-bottom:0">
+  <div class="container">
+    <div class="section-head reveal">
+      <div><span class="eyebrow">Os queridinhos da loja</span><h2 class="section-title">Mais vendidos</h2></div>
+      <a href="{% url 'catalog:product_list' %}?sort=popular" class="link">Ver catálogo <svg class="icon icon-arrow"><use href="#i-arrow-right"></use></svg></a>
+    </div>
+    <div class="product-grid reveal">
+      {% for product in featured %}
+        <div style="--i:{{ forloop.counter0 }}">{% include "catalog/partials/product_card.html" with product=product %}</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
 
 <!-- ===================== COMO FUNCIONA ===================== -->
 <section class="section" style="padding-top:0">
@@ -61,33 +108,6 @@
   </div>
 </section>
 
-<!-- ===================== CUPONS ===================== -->
-<section class="section" style="padding-top:0">
-  <div class="container">
-    <div class="section-head center reveal">
-      <span class="eyebrow">Descontos</span>
-      <h2 class="section-title">Cupons pra usar agora</h2>
-    </div>
-    <p class="text-muted reveal" style="text-align:center;max-width:62ch;margin:-.6rem auto 1.6rem">
-      Copie o código e cole no campo <strong>“cupom”</strong> dentro do carrinho, antes de fechar o pedido — o desconto entra na hora sobre o subtotal.
-    </p>
-    {% if coupons %}
-    <div class="coupon-cards reveal">
-      {% for c in coupons %}
-        <div class="coupon-card">
-          <span class="cc-ico"><svg class="icon icon-lg"><use href="#i-tag"></use></svg></span>
-          <div>
-            <div class="cc-off">{{ c.off }}</div>
-            <span class="cc-code">{{ c.code }}</span>
-            <div class="cc-min">{{ c.min }}</div>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-  </div>
-</section>
-
 <!-- ===================== FRETE E ENTREGA ===================== -->
 <section class="section" style="padding-top:0">
   <div class="container">
@@ -97,7 +117,7 @@
         <h2 class="section-title">Chega rápido e com rastreio</h2>
         <p class="text-muted">Produzimos sob demanda em média 48h e despachamos para todo o Brasil. Você acompanha cada etapa pelo código de rastreio.</p>
         <ul class="check-list">
-          <li><span class="ck"><svg class="icon"><use href="#i-check"></use></svg></span><span><strong>Frete grátis</strong> em compras acima de <strong>R$ 199</strong>.</span></li>
+          <li><span class="ck"><svg class="icon"><use href="#i-check"></use></svg></span><span><strong>Frete combinado</strong> no atendimento, conforme o seu endereço.</span></li>
           <li><span class="ck"><svg class="icon"><use href="#i-check"></use></svg></span><span><strong>Rastreio</strong> do envio até a entrega na sua porta.</span></li>
           <li><span class="ck"><svg class="icon"><use href="#i-check"></use></svg></span><span><strong>Produção média de 48h</strong> antes do despacho.</span></li>
           <li><span class="ck"><svg class="icon"><use href="#i-check"></use></svg></span><span>Condições especiais de frete — é só falar com a gente.</span></li>
@@ -121,8 +141,8 @@
       <h2 class="section-title">Pague do jeito que preferir</h2>
     </div>
     <div class="pay-row reveal">
-      <div class="pay-chip"><span class="pc-ico"><svg class="icon icon-lg"><use href="#i-pix"></use></svg></span><div><b>PIX</b><span>10% de desconto · na hora</span></div></div>
-      <div class="pay-chip"><span class="pc-ico"><svg class="icon icon-lg"><use href="#i-card"></use></svg></span><div><b>Cartão</b><span>até 6x · 3x sem juros</span></div></div>
+      <div class="pay-chip"><span class="pc-ico"><svg class="icon icon-lg"><use href="#i-pix"></use></svg></span><div><b>PIX</b><span>aprovação na hora</span></div></div>
+      <div class="pay-chip"><span class="pc-ico"><svg class="icon icon-lg"><use href="#i-card"></use></svg></span><div><b>Cartão</b><span>parcelado</span></div></div>
       <div class="pay-chip"><span class="pc-ico"><svg class="icon icon-lg"><use href="#i-barcode"></use></svg></span><div><b>Boleto</b><span>linha digitável</span></div></div>
       <div class="pay-chip"><span class="pc-ico"><svg class="icon icon-lg"><use href="#i-lock"></use></svg></span><div><b>Compra segura</b><span>dados protegidos</span></div></div>
     </div>
@@ -139,7 +159,7 @@
     <div class="faq reveal">
       <details><summary>Como uso um cupom de desconto?</summary><p>Adicione os produtos ao carrinho, digite o código no campo “cupom” e o desconto é aplicado sobre o subtotal antes de fechar o pedido. Alguns cupons exigem valor mínimo.</p></details>
       <details><summary>Qual o prazo de produção e entrega?</summary><p>A produção leva em média 48h, pois imprimimos sob demanda. Depois o pedido é despachado com código de rastreio para todo o Brasil.</p></details>
-      <details><summary>Quando o frete é grátis?</summary><p>O frete é grátis em compras acima de R$ 199. Abaixo disso, o cálculo aparece no checkout conforme o seu endereço.</p></details>
+      <details><summary>Como funciona o frete?</summary><p>Como produzimos sob demanda, o frete é combinado no atendimento conforme o seu endereço e o tamanho da peça.</p></details>
       <details><summary>Posso encomendar uma peça que não está no catálogo?</summary><p>Sim! Atendemos encomendas de qualquer categoria. Mande a referência, a gente orça escala, material e prazo, e imprime sob medida.</p></details>
       <details><summary>Quais formas de pagamento vocês aceitam?</summary><p>PIX e cartão de crédito (aprovação na hora, PIX com 10% off) e boleto. Toda a compra é feita de forma segura.</p></details>
     </div>

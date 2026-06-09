@@ -22,6 +22,7 @@ class Order(TimeStampedModel):
         SHIPPED = "shipped", "Enviado"
         DELIVERED = "delivered", "Entregue"
         CANCELLED = "cancelled", "Cancelado"
+        ORCAMENTO = "orcamento", "Orçamento pendente"
 
     class Payment(models.TextChoices):
         PIX = "pix", "PIX"
@@ -100,6 +101,10 @@ class OrderItem(models.Model):
     unit_price = models.DecimalField("preço unitário", max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField("quantidade")
     line_total = models.DecimalField("total da linha", max_digits=10, decimal_places=2)
+
+    # item custom de lithophane (orçamento): snapshot do rascunho + specs
+    draft_id = models.PositiveIntegerField("rascunho lithophane", null=True, blank=True)
+    litho_specs = models.JSONField("specs do lithophane", null=True, blank=True)
 
     class Meta:
         verbose_name = "item do pedido"

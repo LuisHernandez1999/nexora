@@ -49,6 +49,22 @@ def remove(request, product_id: int):
 
 
 @require_POST
+def add_litho(request, draft_id: int):
+    request.cart.add_litho(draft_id)
+    if _is_fetch(request):
+        return JsonResponse({"ok": True})
+    messages.success(request, "Lithophane adicionado ao carrinho.")
+    return redirect("cart:detail")
+
+
+@require_POST
+def remove_litho(request, draft_id: int):
+    request.cart.remove_litho(draft_id)
+    messages.info(request, "Lithophane removido.")
+    return redirect("cart:detail")
+
+
+@require_POST
 def apply_coupon(request):
     code = (request.POST.get("code") or "").strip()
     result = CartService.apply_coupon(request, code)

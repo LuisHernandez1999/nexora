@@ -27,12 +27,14 @@ class OrderService(BaseService):
     def create_from_cart(request, data: dict) -> Order:
         cart = CartService.build(request)
         items = cart["items"]
-        if not items:
+        tem_orcamento = bool(request.cart.litho_draft_ids)
+        if not items and not tem_orcamento:
             raise EmptyCartError()
         summary = cart["summary"]
 
         order = Order.objects.create(
             user=request.user,
+            status=Order.Status.ORCAMENTO if tem_orcamento else Order.Status.PENDING,
             payment_method=data["payment_method"],
             card_last4=data.get("card_last4", ""),
             subtotal=summary["subtotal"],
@@ -63,6 +65,30 @@ class OrderService(BaseService):
             for line in items
         ])
 
+        # itens lithophane "a combinar" — snapshot (draft_id + specs), preço 0 (NOT NULL)
+        if tem_orcamento:
+            from decimal import Decimal
+            from apps.lithophane.queries import LithophaneQuery  # import local anti-ciclo
+            litho_drafts = LithophaneQuery.drafts_by_ids(request.cart.litho_draft_ids)
+            OrderItem.objects.bulk_create([
+                OrderItem(
+                    order=order,
+                    product=None,
+                    product_name=f"Lithophane {d.get_format_display()} {d.size}mm",
+                    unit_price=Decimal("0.00"),   # "a combinar"
+                    quantity=1,
+                    line_total=Decimal("0.00"),
+                    draft_id=d.pk,
+                    litho_specs={
+                        "formato": d.format,
+                        "largura_mm": float(d.size),
+                        "espessura_max_mm": float(d.thickness),
+                        "foto_url": d.image.url if d.image else "",
+                    },
+                )
+                for d in litho_drafts
+            ])
+
         # baixa de estoque + métrica de vendas (atômico via F)
         for line in items:
             Product.objects.filter(pk=line["id"]).update(
@@ -74,8 +100,9 @@ class OrderService(BaseService):
         if order.coupon_code:
             Coupon.objects.filter(code=order.coupon_code).update(used_count=F("used_count") + 1)
 
-        # cobrança (simulada)
-        PaymentService.process(order)
+        # cobrança (simulada) — orçamento não captura pagamento
+        if not tem_orcamento:
+            PaymentService.process(order)
 
         # esvazia o carrinho
         request.cart.clear()

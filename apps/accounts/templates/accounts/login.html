@@ -3,10 +3,11 @@
 {% block title %}Entrar · {{ SITE.name }}{% endblock %}
 {% block content %}
 <section class="auth-split">
-  <aside class="auth-aside auth-aside--photo auth-aside--contain">
-    <div class="aside-bg"><img src="{% static 'img/auth-login.png' %}" alt=""></div>
+  <aside class="auth-aside auth-aside--brand">
+    <div class="aside-bg aside-bg--brand"></div>
     <a href="{% url 'core:home' %}" class="brand auth-wordmark">
-      <span class="brand-word">L3d <b class="brand-labz">LabZ</b></span>
+      <svg class="brand-logo" viewBox="0 0 64 64" aria-hidden="true"><use href="#i-l3d-mark"></use></svg>
+      <span class="brand-word"><b>L3D</b> Labz</span>
     </a>
     <div>
       <span class="eyebrow">Que bom te ver de novo</span>

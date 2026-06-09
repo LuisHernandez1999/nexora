@@ -81,6 +81,15 @@ class ProductQuery:
         )
 
     @staticmethod
+    def with_3d(limit: int | None = None) -> list[Product]:
+        qs = (
+            Product.objects.active().with_relations()
+            .exclude(model_3d="")
+            .order_by("-sales_count")
+        )
+        return list(qs[:limit]) if limit else list(qs)
+
+    @staticmethod
     def detail_by_slug(slug: str) -> Product | None:
         def producer():
             return Product.objects.active().with_relations().filter(slug=slug).first()
@@ -141,11 +150,13 @@ class ProductQuery:
         )
 
     @staticmethod
-    def search(*, category_slug=None, query=None, sort="relevance", min_price=None, max_price=None):
+    def search(*, category_slug=None, query=None, sort="relevance", min_price=None, max_price=None, material=None):
         """Busca filtrada — retorna um QuerySet (a view pagina). TTL curto via service."""
         qs = Product.objects.active().with_relations()
         if category_slug:
             qs = qs.filter(category__slug=category_slug)
+        if material:
+            qs = qs.filter(material=material)
         if query:
             qs = qs.filter(Q(name__icontains=query) | Q(description__icontains=query))
         if min_price is not None:
@@ -161,6 +172,14 @@ class ProductQuery:
             "relevance": "-is_featured",
         }.get(sort, "-is_featured")
         return qs.order_by(ordering, "-sales_count")
+
+    @staticmethod
+    def materials() -> list[str]:
+        """Materiais distintos dos produtos ativos (para o filtro)."""
+        return sorted(
+            m for m in Product.objects.active().order_by("material")
+            .values_list("material", flat=True).distinct() if m
+        )
 
 
 class ReviewQuery:

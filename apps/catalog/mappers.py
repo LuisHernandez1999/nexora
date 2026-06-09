@@ -106,6 +106,10 @@ class ProductMapper(BaseMapper[Product]):
                 "sales_count": instance.sales_count,
                 "gallery": gallery,
                 "rating_int": int(round(float(instance.rating))),
+                "model_3d_url": instance.model_3d.url if instance.model_3d else "",
+                "stl_url": instance.model_stl.url if instance.model_stl else "",
+                "has_3d_model": instance.has_3d_model,
+                "has_stl": instance.has_stl,
             }
         )
         return data
