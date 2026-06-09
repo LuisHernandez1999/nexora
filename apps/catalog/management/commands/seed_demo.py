@@ -14,9 +14,50 @@ from django.utils import timezone
 from django.utils.text import slugify
 
 from apps.catalog.models import Category, Product, ProductImage, Review
+from apps.orders.models import Order, OrderItem
 from apps.promotions.models import Coupon, Offer, Promotion
 
 User = get_user_model()
+
+
+def _ensure_approved_purchase(buyer, product) -> bool:
+    """Garante uma compra paga (Order APPROVED + OrderItem) de `buyer` por `product`.
+
+    Idempotente: se ja existe item desse comprador para esse produto num pedido
+    aprovado, nao cria nada. Retorna True se criou um pedido novo.
+    """
+    already = OrderItem.objects.filter(
+        order__user=buyer,
+        product=product,
+        order__payment_status=Order.PaymentStatus.APPROVED,
+    ).exists()
+    if already:
+        return False
+    order = Order.objects.create(
+        user=buyer,
+        status=Order.Status.DELIVERED,
+        payment_method=Order.Payment.PIX,
+        payment_status=Order.PaymentStatus.APPROVED,
+        paid_at=timezone.now(),
+        subtotal=product.price,
+        total=product.price,
+        recipient=buyer.first_name or buyer.email,
+        zip_code="01001-000",
+        street="Rua Demo",
+        number_addr="100",
+        district="Centro",
+        city="Sao Paulo",
+        state="SP",
+    )
+    OrderItem.objects.create(
+        order=order,
+        product=product,
+        product_name=product.name,
+        unit_price=product.price,
+        quantity=1,
+        line_total=product.price,
+    )
+    return True
 
 # Fotos reais (Unsplash CDN), verificadas e mapeadas por categoria.
 # A capa do produto sai da galeria; sempre carregam (sem placeholder instavel).
@@ -258,19 +299,23 @@ class Command(BaseCommand):
             buyers.append(buyer)
 
         reviewed = 0
+        purchases = 0
         for idx, product in enumerate(Product.objects.order_by("id")[:8]):
             for b, buyer in enumerate(buyers[: 1 + idx % 3]):
+                # de verdade: a avaliacao so existe porque houve uma compra paga
+                purchases += _ensure_approved_purchase(buyer, product)
                 rating, title, comment = DEMO_REVIEWS[(idx + b) % len(DEMO_REVIEWS)]
                 _, made = Review.objects.get_or_create(
                     product=product, author=buyer,
                     defaults={"rating": rating, "title": title, "comment": comment},
                 )
                 reviewed += made
-        self.stdout.write(self.style.SUCCESS(f"Avaliacoes novas: {reviewed} (total {Review.objects.count()})"))
+        self.stdout.write(self.style.SUCCESS(
+            f"Compras demo (pagas): {purchases} | Avaliacoes novas: {reviewed} (total {Review.objects.count()})"
+        ))
 
         self.stdout.write(self.style.SUCCESS(
             "\nSeed concluido!\n"
-            "  Vendedor: vendedor@l3dlabz.test / l3dlabz123 (painel em /vendedor/)\n"
-            "  Clientes: cliente1..3@l3dlabz.test / l3dlabz123\n"
+            "  Clientes: cliente1..3@l3dlabz.test / l3dlabz123 (compraram -> podem avaliar)\n"
             "  Ofertas em /promocoes/ofertas/ | API em /api/ofertas/ e /api/produtos/"
         ))
