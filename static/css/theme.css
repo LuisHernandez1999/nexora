@@ -2178,3 +2178,20 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .cat-chip:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-soft); }
 .cat-chip .cc-ic { color: var(--acc, var(--accent)); display: inline-flex; }
 .cat-chip .cc-ic .icon { width: 18px; height: 18px; }
+
+/* ---- lista de desejos (coração) ---- */
+.fav-form { margin: 0; }
+.fav-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--bg-card); color: var(--text-muted);
+  cursor: pointer;
+  transition: color .18s var(--ease), border-color .18s var(--ease), transform .18s var(--ease), background .18s var(--ease);
+}
+.fav-btn:hover { color: var(--danger); border-color: var(--danger); transform: translateY(-1px); }
+.fav-btn .icon { width: 20px; height: 20px; }
+.fav-btn.is-fav { color: #fff; background: var(--danger); border-color: var(--danger); }
+.fav-btn.is-fav:hover { filter: brightness(1.05); }
+.fav-on-card { position: absolute; top: 10px; right: 10px; z-index: 3; }
+.fav-on-card .fav-btn { width: 36px; height: 36px; }
+.fav-inline { display: inline-flex; }

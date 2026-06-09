@@ -1,0 +1,17 @@
+{# Coracao de favoritar. Espera `product` (dict com .id) e `favorite_ids` no contexto.
+   Aceita `extra_class` opcional. Funciona sem JS (form POST); app.js intercepta p/ AJAX. #}
+{% if user.is_authenticated %}
+  <form action="{% url 'catalog:favorite_toggle' product.id %}" method="post" data-fav-form class="fav-form {{ extra_class }}">
+    {% csrf_token %}
+    <button type="submit" class="fav-btn{% if product.id in favorite_ids %} is-fav{% endif %}"
+            aria-label="Lista de desejos" aria-pressed="{% if product.id in favorite_ids %}true{% else %}false{% endif %}"
+            title="{% if product.id in favorite_ids %}Remover da lista de desejos{% else %}Adicionar à lista de desejos{% endif %}">
+      <svg class="icon"><use href="#i-heart"></use></svg>
+    </button>
+  </form>
+{% else %}
+  <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="fav-btn {{ extra_class }}"
+     title="Entre para favoritar" aria-label="Entre para favoritar">
+    <svg class="icon"><use href="#i-heart"></use></svg>
+  </a>
+{% endif %}

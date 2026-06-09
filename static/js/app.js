@@ -80,6 +80,50 @@
     }
   });
 
+  /* ---------------------------------------------------- favoritar (fetch) */
+  document.addEventListener("submit", async (e) => {
+    const form = e.target.closest("form[data-fav-form]");
+    if (!form) return;
+    e.preventDefault();
+    const btn = form.querySelector("button");
+    if (btn) btn.disabled = true;
+    try {
+      const res = await fetch(form.action, {
+        method: "POST",
+        headers: { "X-CSRFToken": getCookie("csrftoken"), "X-Requested-With": "XMLHttpRequest" },
+        body: new FormData(form),
+      });
+      const data = await res.json();
+      if (btn) {
+        btn.classList.toggle("is-fav", !!data.favorited);
+        btn.setAttribute("aria-pressed", data.favorited ? "true" : "false");
+        btn.title = data.favorited ? "Remover da lista de desejos" : "Adicionar à lista de desejos";
+      }
+      updateFavBadge(data.favorited ? 1 : -1);
+    } catch (err) {
+      form.submit();
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  });
+
+  function updateFavBadge(delta) {
+    const link = document.querySelector('a[href$="/favoritos/"]');
+    if (!link) return;
+    let badge = link.querySelector("[data-fav-count]");
+    let n = (badge ? parseInt(badge.textContent, 10) || 0 : 0) + delta;
+    n = Math.max(0, n);
+    if (!n) { if (badge) badge.remove(); return; }
+    if (!badge) {
+      badge = document.createElement("span");
+      badge.className = "cart-badge";
+      badge.setAttribute("data-fav-count", "");
+      link.appendChild(badge);
+    }
+    badge.textContent = n;
+    badge.style.animation = "none"; void badge.offsetWidth; badge.style.animation = "";
+  }
+
   /* ---------------------------------------------------- carrosséis */
   document.querySelectorAll(".carousel").forEach((root) => {
     const track = root.querySelector(".carousel-track");

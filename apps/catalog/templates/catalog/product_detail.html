@@ -81,12 +81,15 @@
               <svg class="icon"><use href="#i-box"></use></svg> Baixar STL
             </a>
           {% endif %}
+          <div class="mt-2">
+            {% include "catalog/partials/fav_button.html" with product=product extra_class="fav-inline" %}
+          </div>
         </div>
       </div>
     </div>
 
     <!-- avaliações do produto (só quem comprou pode avaliar) -->
-    <div class="section reviews-section">
+    <div class="section reviews-section" id="avaliacoes">
       {% include "core/partials/section_head.html" with title="Avaliações" %}
 
       <div class="reviews-summary reveal">
@@ -134,6 +137,19 @@
         <p class="text-muted reveal">Ainda sem avaliações. {% if review_state.can_review %}Seja o primeiro a avaliar!{% endif %}</p>
       {% endif %}
     </div>
+
+    {% if bought_together %}
+    <div class="section" style="padding-bottom:0">
+      <div class="section-head reveal"><h2 class="section-title">Quem comprou também levou</h2></div>
+      <div class="product-grid">
+        {% for product in bought_together %}
+          <div class="reveal" style="--i:{{ forloop.counter0 }}">
+            {% include "catalog/partials/product_card.html" with product=product %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
 
     {% if related %}
     <div class="section" style="padding-bottom:0">

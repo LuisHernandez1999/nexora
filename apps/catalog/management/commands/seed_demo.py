@@ -10,6 +10,7 @@ from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
+from django.db.models import Count
 from django.utils import timezone
 from django.utils.text import slugify
 
@@ -57,6 +58,35 @@ def _ensure_approved_purchase(buyer, product) -> bool:
         quantity=1,
         line_total=product.price,
     )
+    return True
+
+
+def _ensure_basket(buyer, products) -> bool:
+    """Pedido pago multi-item (gera co-compra p/ 'quem comprou tambem levou').
+
+    Idempotente: pula se o comprador ja tem algum pedido com mais de um item.
+    """
+    products = [p for p in products if p]
+    if len(products) < 2:
+        return False
+    has_multi = (
+        Order.objects.filter(user=buyer).annotate(n=Count("items")).filter(n__gt=1).exists()
+    )
+    if has_multi:
+        return False
+    total = sum((p.price for p in products), Decimal("0"))
+    order = Order.objects.create(
+        user=buyer, status=Order.Status.DELIVERED, payment_method=Order.Payment.PIX,
+        payment_status=Order.PaymentStatus.APPROVED, paid_at=timezone.now(),
+        subtotal=total, total=total,
+        recipient=buyer.first_name or buyer.email, zip_code="01001-000",
+        street="Rua Demo", number_addr="100", district="Centro", city="Sao Paulo", state="SP",
+    )
+    for p in products:
+        OrderItem.objects.create(
+            order=order, product=p, product_name=p.name,
+            unit_price=p.price, quantity=1, line_total=p.price,
+        )
     return True
 
 # Fotos reais (Unsplash CDN), verificadas e mapeadas por categoria.
@@ -313,6 +343,19 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(
             f"Compras demo (pagas): {purchases} | Avaliacoes novas: {reviewed} (total {Review.objects.count()})"
         ))
+
+        # ---- carrinhos multi-item (co-compra -> recomendacoes) ----
+        prods = list(Product.objects.order_by("id")[:8])
+        baskets = 0
+        if len(prods) >= 6:
+            combos = [
+                [prods[0], prods[1], prods[2]],
+                [prods[0], prods[3]],
+                [prods[1], prods[4], prods[5]],
+            ]
+            for buyer, combo in zip(buyers, combos):
+                baskets += _ensure_basket(buyer, combo)
+        self.stdout.write(self.style.SUCCESS(f"Carrinhos multi-item (co-compra): {baskets}"))
 
         self.stdout.write(self.style.SUCCESS(
             "\nSeed concluido!\n"

@@ -221,3 +221,26 @@ class Review(TimeStampedModel):
 
     def __str__(self) -> str:
         return f"{self.rating}/5 — {self.product_id} por {self.author_id}"
+
+
+class Favorite(TimeStampedModel):
+    """Produto na lista de desejos de um usuario."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="favorites", verbose_name="usuario"
+    )
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="favorited_by", verbose_name="produto"
+    )
+
+    class Meta:
+        verbose_name = "favorito"
+        verbose_name_plural = "favoritos"
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["user", "product"], name="uniq_favorite_user_product")
+        ]
+        indexes = [models.Index(fields=["user", "-created_at"])]
+
+    def __str__(self) -> str:
+        return f"{self.user_id} <3 {self.product_id}"

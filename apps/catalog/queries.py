@@ -9,13 +9,14 @@ from django.db.models import Avg, Count, F, Q
 
 from apps.core import cache as cache_utils
 
-from .models import Category, Product, Review
+from .models import Category, Favorite, Product, Review
 
 NS_FEATURED = "catalog:featured"
 NS_NEW = "catalog:new"
 NS_CATEGORIES = "catalog:categories"
 NS_PRODUCT = "catalog:product"
 NS_RELATED = "catalog:related"
+NS_BOUGHT = "catalog:bought_together"
 
 
 class CategoryQuery:
@@ -150,6 +151,40 @@ class ProductQuery:
         )
 
     @staticmethod
+    def bought_together(product: Product, limit: int = 4) -> list[Product]:
+        """Quem comprou este produto tambem levou — co-compra via OrderItem.
+
+        Ranqueia por frequencia de co-ocorrencia nos mesmos pedidos. TTL curto
+        (muda conforme novas vendas chegam).
+        """
+        def producer():
+            from apps.orders.models import OrderItem  # import tardio (evita ciclo)
+
+            order_ids = OrderItem.objects.filter(product=product).values_list("order_id", flat=True)
+            if not order_ids:
+                return []
+            ranked = list(
+                OrderItem.objects.filter(order_id__in=order_ids)
+                .exclude(product=product)
+                .exclude(product__isnull=True)
+                .values("product_id")
+                .annotate(n=Count("id"))
+                .order_by("-n")
+                .values_list("product_id", flat=True)[: limit * 2]
+            )
+            if not ranked:
+                return []
+            pos = {pid: i for i, pid in enumerate(ranked)}
+            prods = (
+                Product.objects.active().with_relations().filter(id__in=ranked)
+            )
+            return sorted(prods, key=lambda p: pos.get(p.id, 999))[:limit]
+
+        return cache_utils.get_or_set(
+            cache_utils.build_key(NS_BOUGHT, product.pk, limit), producer, bucket="short"
+        )
+
+    @staticmethod
     def search(*, category_slug=None, query=None, sort="relevance", min_price=None, max_price=None, material=None):
         """Busca filtrada — retorna um QuerySet (a view pagina). TTL curto via service."""
         qs = Product.objects.active().with_relations()
@@ -197,6 +232,38 @@ class ReviewQuery:
         if not getattr(user, "is_authenticated", False):
             return None
         return Review.objects.filter(product=product, author=user).first()
+
+    @staticmethod
+    def reviewed_product_ids(user, product_ids) -> set[int]:
+        """Subconjunto de product_ids que `user` ja avaliou (1 query)."""
+        if not getattr(user, "is_authenticated", False) or not product_ids:
+            return set()
+        return set(
+            Review.objects.filter(author=user, product_id__in=product_ids)
+            .values_list("product_id", flat=True)
+        )
+
+
+class FavoriteQuery:
+    @staticmethod
+    def ids_for_user(user) -> set[int]:
+        """Ids de produtos favoritados por `user` (1 query, p/ context processor)."""
+        if not getattr(user, "is_authenticated", False):
+            return set()
+        return set(
+            Favorite.objects.filter(user=user).values_list("product_id", flat=True)
+        )
+
+    @staticmethod
+    def products_for_user(user) -> list[Product]:
+        """Produtos favoritados, com relations p/ render do card (sem cache: por usuario)."""
+        if not getattr(user, "is_authenticated", False):
+            return []
+        return list(
+            Product.objects.filter(favorited_by__user=user, is_active=True)
+            .select_related("category")
+            .order_by("-favorited_by__created_at")
+        )
 
     @staticmethod
     def aggregate_for_product(product_id) -> dict:

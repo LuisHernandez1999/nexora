@@ -22,21 +22,27 @@ STATUS_TONE = {
 
 class OrderItemMapper:
     @classmethod
-    def to_dict(cls, item: OrderItem) -> dict[str, Any]:
+    def to_dict(cls, item: OrderItem, *, reviewable: bool = False, reviewed_ids=frozenset()) -> dict[str, Any]:
+        url = item.product.get_absolute_url() if item.product else None
         return {
             "name": item.product_name,
             "quantity": item.quantity,
             "unit_price_display": format_brl(item.unit_price),
             "line_total_display": format_brl(item.line_total),
-            "url": item.product.get_absolute_url() if item.product else None,
+            "url": url,
             "icon": item.product.category.icon if item.product else "box",
             "accent": item.product.category.accent if item.product else "#3b82f6",
+            # avaliacao: so faz sentido se o produto ainda existe e o pedido foi pago
+            "can_review": bool(reviewable and item.product_id),
+            "reviewed": item.product_id in reviewed_ids,
+            "review_url": f"{url}#avaliacoes" if url else None,
         }
 
 
 class OrderMapper:
     @classmethod
-    def to_dict(cls, order: Order) -> dict[str, Any]:
+    def to_dict(cls, order: Order, *, reviewed_ids=frozenset()) -> dict[str, Any]:
+        reviewable = order.payment_status == Order.PaymentStatus.APPROVED
         return {
             "number": order.number,
             "created_at": order.created_at,
@@ -47,15 +53,26 @@ class OrderMapper:
             "total_display": format_brl(order.total),
             "item_count": order.item_count,
             "url": f"/pedidos/{order.number}/",
+            # itens avaliaveis (pedido pago, produto existente) — usado na lista "Meus pedidos"
+            "review_items": [
+                OrderItemMapper.to_dict(i, reviewable=reviewable, reviewed_ids=reviewed_ids)
+                for i in order.items.all() if i.product_id
+            ] if reviewable else [],
         }
 
-    to_list = classmethod(lambda cls, qs: [cls.to_dict(o) for o in qs])
+    to_list = classmethod(
+        lambda cls, qs, *, reviewed_ids=frozenset(): [cls.to_dict(o, reviewed_ids=reviewed_ids) for o in qs]
+    )
 
     @classmethod
-    def to_detail(cls, order: Order) -> dict[str, Any]:
-        data = cls.to_dict(order)
+    def to_detail(cls, order: Order, *, reviewed_ids=frozenset()) -> dict[str, Any]:
+        data = cls.to_dict(order, reviewed_ids=reviewed_ids)
+        reviewable = order.payment_status == Order.PaymentStatus.APPROVED
         data.update({
-            "items": [OrderItemMapper.to_dict(i) for i in order.items.all()],
+            "items": [
+                OrderItemMapper.to_dict(i, reviewable=reviewable, reviewed_ids=reviewed_ids)
+                for i in order.items.all()
+            ],
             "subtotal_display": format_brl(order.subtotal),
             "discount_display": format_brl(order.discount),
             "has_discount": order.discount > 0,

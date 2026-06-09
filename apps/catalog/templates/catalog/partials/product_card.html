@@ -10,6 +10,7 @@
     {% elif product.is_new %}<span class="badge badge-new">Novo</span>{% endif %}
     {% if not product.in_stock %}<span class="badge badge-soft">Esgotado</span>{% endif %}
   </a>
+  {% include "catalog/partials/fav_button.html" with product=product extra_class="fav-on-card" %}
   <div class="product-body">
     <span class="product-cat">{{ product.category_name }}</span>
     <a href="{{ product.url }}" class="product-name">{{ product.name }}</a>

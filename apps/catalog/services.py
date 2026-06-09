@@ -11,9 +11,10 @@ from django.utils.text import slugify
 from apps.core.layers import BaseService
 
 from .mappers import CategoryMapper, ProductMapper, ReviewMapper
-from .models import MAX_PRODUCT_IMAGES, Product, ProductImage, Review
+from .models import MAX_PRODUCT_IMAGES, Favorite, Product, ProductImage, Review
 from .queries import (
     CategoryQuery,
+    FavoriteQuery,
     ProductQuery,
     ReviewQuery,
     invalidate_catalog_cache,
@@ -101,6 +102,7 @@ class CatalogService(BaseService):
         return {
             "product": ProductMapper.to_detail(product),
             "related": ProductMapper.to_list(ProductQuery.related(product)),
+            "bought_together": ProductMapper.to_list(ProductQuery.bought_together(product)),
             "reviews": ReviewMapper.to_list(reviews),
             "review_summary": ReviewService.summary(product),
             "review_state": ReviewService.eligibility(user, product),
@@ -209,6 +211,25 @@ class ReviewService(BaseService):
             "count": product.review_count,
             "rating_int": int(round(float(product.rating))),
         }
+
+
+class FavoriteService(BaseService):
+    """Lista de desejos: favoritar/desfavoritar e listar."""
+
+    @staticmethod
+    def toggle(user, product) -> tuple[bool, str]:
+        """Alterna o favorito. Retorna (is_favorited, mensagem)."""
+        existing = Favorite.objects.filter(user=user, product=product).first()
+        if existing:
+            existing.delete()
+            return False, "Removido da sua lista de desejos."
+        Favorite.objects.create(user=user, product=product)
+        return True, "Adicionado a sua lista de desejos."
+
+    @staticmethod
+    def list_for_user(user) -> dict[str, Any]:
+        products = FavoriteQuery.products_for_user(user)
+        return {"products": ProductMapper.to_list(products), "count": len(products)}
 
 
 def _unique_slug(name: str) -> str:

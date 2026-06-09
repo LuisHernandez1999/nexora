@@ -22,7 +22,16 @@
         {% for item in order.items %}
           <div class="info-line">
             <span>{% if item.url %}<a href="{{ item.url }}">{{ item.quantity }}× {{ item.name }}</a>{% else %}{{ item.quantity }}× {{ item.name }}{% endif %}</span>
-            <strong>{{ item.line_total_display }}</strong>
+            <span style="display:flex;align-items:center;gap:.75rem">
+              {% if item.can_review %}
+                {% if item.reviewed %}
+                  <span class="chip" title="Você já avaliou este produto">✓ Avaliado</span>
+                {% else %}
+                  <a href="{{ item.review_url }}" class="btn btn-ghost btn-sm">Avaliar</a>
+                {% endif %}
+              {% endif %}
+              <strong>{{ item.line_total_display }}</strong>
+            </span>
           </div>
         {% endfor %}
       </div>

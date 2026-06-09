@@ -3,12 +3,12 @@ from __future__ import annotations
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import ReviewForm
 from .models import Product
-from .services import CatalogService, ReviewService
+from .services import CatalogService, FavoriteService, ReviewService
 
 
 def product_list(request):
@@ -48,3 +48,21 @@ def review_create(request, product_id):
     return redirect(product.get_absolute_url())
 def models_3d(request):
     return render(request, "catalog/models_3d.html", CatalogService.gallery())
+
+
+@login_required
+def favorite_toggle(request, product_id):
+    """Favoritar/desfavoritar. Responde JSON p/ AJAX (fetch) ou redireciona."""
+    product = get_object_or_404(Product.objects.active(), pk=product_id)
+    if request.method != "POST":
+        return redirect(product.get_absolute_url())
+    is_fav, message = FavoriteService.toggle(request.user, product)
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        return JsonResponse({"favorited": is_fav, "message": message})
+    messages.success(request, message)
+    return redirect(request.META.get("HTTP_REFERER") or product.get_absolute_url())
+
+
+@login_required
+def wishlist(request):
+    return render(request, "catalog/wishlist.html", FavoriteService.list_for_user(request.user))

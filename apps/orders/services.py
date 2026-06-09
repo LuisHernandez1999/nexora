@@ -8,6 +8,7 @@ from django.db.models import F
 
 from apps.cart.services import CartService
 from apps.catalog.models import Product
+from apps.catalog.queries import ReviewQuery
 from apps.core.layers import BaseService
 from apps.promotions.models import Coupon
 
@@ -111,11 +112,16 @@ class OrderService(BaseService):
     # ---- leitura ----
     @staticmethod
     def get_history(user) -> list[dict]:
-        return OrderMapper.to_list(OrderQuery.for_user(user))
+        orders = list(OrderQuery.for_user(user))
+        pids = {i.product_id for o in orders for i in o.items.all() if i.product_id}
+        reviewed = ReviewQuery.reviewed_product_ids(user, pids)
+        return OrderMapper.to_list(orders, reviewed_ids=reviewed)
 
     @staticmethod
     def get_detail(user, number: str) -> dict[str, Any] | None:
         order = OrderQuery.detail_for_user(user, number)
         if not order:
             return None
-        return OrderMapper.to_detail(order)
+        pids = {i.product_id for i in order.items.all() if i.product_id}
+        reviewed = ReviewQuery.reviewed_product_ids(user, pids)
+        return OrderMapper.to_detail(order, reviewed_ids=reviewed)
