@@ -51,6 +51,7 @@ LOCAL_APPS = [
     "apps.cart",
     "apps.orders",
     "apps.seller",
+    "apps.lithophane",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -217,7 +218,7 @@ REST_FRAMEWORK = {
 # Configurações de marca (usadas no context processor / templates)
 # ---------------------------------------------------------------------------
 SITE = {
-    "name": "L3dLabZ",
-    "tagline": "Impressão 3D para quem é nerd ao cubo",
-    "accent": "#2BE86B",  # verde neon
+    "name": "L3D Labz",
+    "tagline": "Impressão 3D com acabamento de laboratório.",
+    "accent": "#2FA84F",  # verde Luigi
 }

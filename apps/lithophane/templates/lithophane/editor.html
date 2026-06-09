@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Faça meu Lithophane · {{ SITE.name }}{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+
+    <!-- cabeçalho + slogan -->
+    <div class="page-head reveal">
+      <span class="eyebrow">Faça meu Lithophane</span>
+      <h1>Sua foto vira luz</h1>
+      <p class="text-muted">Onde memórias preciosas ganham forma na luz — envie uma foto, enquadre, e veja a peça 3D antes de encomendar.</p>
+    </div>
+
+    <!-- editor -->
+    <div class="litho-editor reveal">
+
+      <!-- rail de ferramentas -->
+      <div class="litho-rail">
+        <label class="litho-tool" title="Enviar foto">
+          <input type="file" id="litho-file" accept="image/*" hidden>
+          <svg class="icon"><use href="#i-box"></use></svg>
+          <span>Enviar</span>
+        </label>
+        <button type="button" class="litho-tool" id="btn-inverter" title="Inverter tons">
+          <svg class="icon"><use href="#i-layers"></use></svg>
+          <span>Inverter</span>
+        </button>
+        <button type="button" class="litho-tool" id="btn-reset" title="Reenquadrar">
+          <svg class="icon"><use href="#i-ruler"></use></svg>
+          <span>Centralizar</span>
+        </button>
+      </div>
+
+      <!-- palco central: canvas (recorte) -> viewer -->
+      <div class="litho-stage" id="litho-stage">
+        <div class="litho-crop" id="litho-crop">
+          <img id="litho-img" alt="" draggable="false" hidden>
+          <div class="crop-box" id="crop-box">
+            <span class="crop-h tl"></span><span class="crop-h tr"></span>
+            <span class="crop-h bl"></span><span class="crop-h br"></span>
+          </div>
+          <span class="litho-hint" id="litho-hint" hidden>Arraste a moldura · puxe os cantos pra ajustar</span>
+        </div>
+        <canvas id="litho-canvas" width="2" height="2" hidden></canvas>
+
+        <div id="litho-viewer-wrap" hidden><!-- model-viewer injetado pelo JS --></div>
+
+        <div class="litho-empty" id="litho-empty">
+          <svg class="icon"><use href="#i-box"></use></svg>
+          <p class="text-muted">Envie uma foto para começar</p>
+        </div>
+
+        <button type="button" class="litho-luz" id="btn-luz" hidden>
+          <svg class="icon"><use href="#i-sun"></use></svg> <span id="btn-luz-label">Com luz</span>
+        </button>
+      </div>
+
+      <!-- painel de controles -->
+      <div class="litho-panel card">
+        <h3 style="margin-top:0">Sua peça</h3>
+
+        <div class="litho-field">
+          <span class="label">Formato</span>
+          <div class="litho-formats">
+            <label class="litho-fmt"><input type="radio" name="formato" value="placa" checked> <svg class="icon"><use href="#i-layers"></use></svg> Placa</label>
+            <label class="litho-fmt"><input type="radio" name="formato" value="luminaria"> <svg class="icon"><use href="#i-sun"></use></svg> Luminária</label>
+            <label class="litho-fmt"><input type="radio" name="formato" value="curvo"> <svg class="icon"><use href="#i-pick3d"></use></svg> Curvo</label>
+            <label class="litho-fmt"><input type="radio" name="formato" value="cubo"> <svg class="icon"><use href="#i-cube"></use></svg> Cubo</label>
+          </div>
+        </div>
+
+        <div class="litho-field">
+          <span class="label">Proporção</span>
+          <div class="litho-ratios" id="litho-ratios">
+            <button type="button" class="ratio is-on" data-ratio="1">1:1</button>
+            <button type="button" class="ratio" data-ratio="0.75">3:4</button>
+            <button type="button" class="ratio" data-ratio="1.3333">4:3</button>
+            <button type="button" class="ratio" data-ratio="1.7778">16:9</button>
+          </div>
+        </div>
+
+        <div class="litho-field">
+          <label class="label" for="litho-size">Tamanho (mm) — <strong id="out-size">100</strong></label>
+          <input type="range" id="litho-size" min="60" max="200" value="100">
+        </div>
+
+        <div class="litho-field">
+          <label class="label" for="litho-thickness">Espessura máx (mm) — <strong id="out-thickness">3</strong></label>
+          <input type="range" id="litho-thickness" min="2" max="5" step="0.5" value="3">
+        </div>
+
+        <div class="litho-field">
+          <label class="label" for="litho-brightness">Brilho — <strong id="out-brightness">100</strong>%</label>
+          <input type="range" id="litho-brightness" min="50" max="150" value="100">
+        </div>
+
+        <button type="button" id="btn-gerar" class="btn btn-primary btn-block mt-2">
+          <svg class="icon"><use href="#i-spark"></use></svg> Gerar 3D
+        </button>
+
+        <!-- ações pós-geração -->
+        <div class="litho-actions" id="litho-actions" hidden>
+          <button type="button" id="btn-refazer" class="btn btn-ghost btn-block mb-1">
+            <svg class="icon"><use href="#i-chevron-left"></use></svg> Editar a foto
+          </button>
+          <form id="litho-order-form" method="post" action="" class="litho-order">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary btn-block">
+              Encomendar <svg class="icon icon-arrow"><use href="#i-arrow-right"></use></svg>
+            </button>
+          </form>
+          <a id="btn-stl" class="btn btn-ghost btn-block mt-1" download href="#">
+            <svg class="icon"><use href="#i-box"></use></svg> Baixar STL
+          </a>
+          <p class="text-dim mt-1" style="font-size:.78rem;text-align:center">Pedido entra como orçamento — combinamos o valor com você.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module"
+        src="https://cdn.jsdelivr.net/npm/@google/model-viewer@4.3.1/dist/model-viewer.min.js"></script>
+<script src="{% static 'js/lithophane-editor.js' %}" defer></script>
+{% endblock %}

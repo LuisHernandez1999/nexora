@@ -12,13 +12,21 @@
     <div class="product-detail mt-2">
       <div class="detail-gallery reveal">
         <div class="detail-media" data-gallery-main>
-          <span class="thumb-mono" style="--acc:{{ product.accent }}">{{ product.monogram }}</span>
-          {% if product.gallery %}
-            <img src="{{ product.gallery.0.url }}" alt="{{ product.name }}" data-gallery-img
-                 onerror="this.onerror=null;this.src='https://picsum.photos/seed/{{ product.slug }}/800/800'">
+          {% if product.has_3d_model %}
+            <model-viewer src="{{ product.model_3d_url }}" poster="{{ product.image_url }}"
+                          alt="Modelo 3D de {{ product.name }}"
+                          camera-controls auto-rotate touch-action="pan-y"
+                          shadow-intensity="1" loading="lazy" reveal="auto"
+                          ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto"></model-viewer>
+          {% else %}
+            <span class="thumb-mono" style="--acc:{{ product.accent }}">{{ product.monogram }}</span>
+            {% if product.gallery %}
+              <img src="{{ product.gallery.0.url }}" alt="{{ product.name }}" data-gallery-img
+                   onerror="this.onerror=null;this.src='https://picsum.photos/seed/{{ product.slug }}/800/800'">
+            {% endif %}
           {% endif %}
         </div>
-        {% if product.gallery|length > 1 %}
+        {% if not product.has_3d_model and product.gallery|length > 1 %}
           <div class="detail-thumbs" data-gallery-thumbs>
             {% for img in product.gallery %}
               <button type="button" class="detail-thumb{% if forloop.first %} active{% endif %}" data-src="{{ img.url }}" aria-label="Foto {{ forloop.counter }}">
@@ -67,6 +75,11 @@
             </form>
           {% else %}
             <button class="btn btn-ghost" disabled>Produto indisponível</button>
+          {% endif %}
+          {% if product.has_stl %}
+            <a href="{{ product.stl_url }}" download class="btn btn-ghost" style="margin-top:.8rem">
+              <svg class="icon"><use href="#i-box"></use></svg> Baixar STL
+            </a>
           {% endif %}
         </div>
       </div>
@@ -136,4 +149,11 @@
     {% endif %}
   </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+  {% if product.has_3d_model %}
+  <script type="module"
+          src="https://cdn.jsdelivr.net/npm/@google/model-viewer@4.3.1/dist/model-viewer.min.js"></script>
+  {% endif %}
 {% endblock %}

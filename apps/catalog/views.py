@@ -46,3 +46,5 @@ def review_create(request, product_id):
     else:
         messages.error(request, "Confira os campos da avaliação.")
     return redirect(product.get_absolute_url())
+def models_3d(request):
+    return render(request, "catalog/models_3d.html", CatalogService.gallery())

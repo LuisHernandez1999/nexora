@@ -34,3 +34,9 @@ local_settings.py
 .DS_Store
 Thumbs.db
 *.swp
+
+# brainstorming visual companion
+.superpowers/
+
+# UAT screenshots (nao versionar)
+.shots/

@@ -8,7 +8,7 @@
       <h1>Carrinho de compras</h1>
     </div>
 
-    {% if items %}
+    {% if items or litho_items %}
     <div class="cart-layout mt-3">
       <!-- itens -->
       <div class="card reveal">
@@ -46,6 +46,23 @@
           </div>
         {% endfor %}
 
+        {% for litho in litho_items %}
+          <div class="cart-item">
+            <span class="thumb">
+              {% if litho.image_url %}<img src="{{ litho.image_url }}" alt="{{ litho.name }}">{% endif %}
+            </span>
+            <div>
+              <span class="product-name">{{ litho.name }}</span>
+              <div class="text-dim" style="font-size:.85rem">{{ litho.price_display }}</div>
+              <form action="{% url 'cart:remove_litho' litho.draft_id %}" method="post" class="mt-1">
+                {% csrf_token %}
+                <button class="link-danger" type="submit"><svg class="icon"><use href="#i-trash"></use></svg> Remover</button>
+              </form>
+            </div>
+            <div style="text-align:right"><strong>A combinar</strong></div>
+          </div>
+        {% endfor %}
+
         <div class="mt-2" style="display:flex;justify-content:space-between;align-items:center">
           <a href="{% url 'catalog:product_list' %}" class="link-danger" style="color:var(--text-muted)">
             <svg class="icon"><use href="#i-chevron-left"></use></svg> Continuar comprando
@@ -61,22 +78,13 @@
         <div class="card reveal" style="--i:1">
           <h3>Resumo do pedido</h3>
 
-          {% if not summary.is_free_shipping %}
-            {% widthratio summary.subtotal summary.free_shipping_threshold 100 as pct %}
-            <div class="mt-1" style="font-size:.85rem;color:var(--text-muted)">
-              Faltam <strong class="text-accent">{{ summary.missing_for_free_shipping|floatformat:2 }}</strong> para o frete grátis
-            </div>
-            <div class="skeleton" style="height:8px;margin:.6rem 0 1rem;background:var(--bg-elevated);animation:none;position:relative;overflow:hidden">
-              <span style="position:absolute;inset:0;width:{{ pct }}%;max-width:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:inherit;transition:width .6s var(--ease)"></span>
-            </div>
-          {% endif %}
-
           <div class="summary-row"><span>Subtotal</span><span>{{ summary.subtotal_display }}</span></div>
           {% if summary.has_discount %}
             <div class="summary-row" style="color:var(--success)"><span>Desconto {% if summary.coupon_code %}({{ summary.coupon_code }}){% endif %}</span><span>- {{ summary.discount_display }}</span></div>
           {% endif %}
           <div class="summary-row"><span>Frete</span><span>{{ summary.shipping_display }}</span></div>
           <div class="summary-row total"><span>Total</span><span>{{ summary.total_display }}</span></div>
+          {% if litho_items %}<div class="summary-row"><span>Lithophane(s)</span><span>A combinar</span></div>{% endif %}
 
           <form action="{% url 'cart:apply_coupon' %}" method="post" class="mt-2">
             {% csrf_token %}

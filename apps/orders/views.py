@@ -16,7 +16,7 @@ from .services import EmptyCartError, OrderService
 @login_required
 def checkout(request):
     cart = CartService.build(request)
-    if not cart["items"]:
+    if not cart["items"] and not cart.get("litho_items"):
         messages.info(request, "Seu carrinho está vazio.")
         return redirect("cart:detail")
 
@@ -33,7 +33,10 @@ def checkout(request):
     else:
         form = CheckoutForm(initial=_initial_from_address(request.user))
 
-    return render(request, "orders/checkout.html", {"form": form, "summary": cart["summary"], "items": cart["items"]})
+    return render(request, "orders/checkout.html", {
+        "form": form, "summary": cart["summary"], "items": cart["items"],
+        "litho_items": cart.get("litho_items", []),
+    })
 
 
 @login_required

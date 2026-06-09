@@ -77,4 +77,17 @@ class CartService(BaseService):
         )
         summary["free_shipping_threshold"] = FREE_SHIPPING_THRESHOLD
         summary["missing_for_free_shipping"] = max(Decimal("0"), FREE_SHIPPING_THRESHOLD - (subtotal - discount))
-        return {"items": lines, "summary": summary}
+
+        # itens lithophane "a combinar" — chave de sessão separada, NÃO entram no total
+        from apps.lithophane.queries import LithophaneQuery  # import local (evita ciclo)
+        litho_items = [
+            {
+                "draft_id": d.pk,
+                "name": f"Lithophane {d.get_format_display()} {d.size}mm",
+                "format": d.format,
+                "image_url": d.image.url if d.image else "",
+                "price_display": "A combinar",
+            }
+            for d in LithophaneQuery.drafts_by_ids(request.cart.litho_draft_ids)
+        ]
+        return {"items": lines, "litho_items": litho_items, "summary": summary}

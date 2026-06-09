@@ -1,18 +1,16 @@
 {% load static %}
 <header class="site-header">
   <div class="container">
-    <a href="{% url 'core:home' %}" class="brand" aria-label="L3dLabZ — início">
-      <span class="brand-badge">
-        <img src="{% static 'img/logo.png' %}" alt="L3dLabZ"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-        <svg class="brand-fallback" viewBox="0 0 64 64" aria-hidden="true" style="display:none"><use href="#i-logo"></use></svg>
-      </span>
-      <span class="brand-word">L3d <b class="brand-labz">LabZ</b></span>
+    <a href="{% url 'core:home' %}" class="brand" aria-label="L3D Labz — início">
+      <svg class="brand-logo" viewBox="0 0 64 64" aria-hidden="true"><use href="#i-l3d-mark"></use></svg>
+      <span class="brand-word"><b>L3D</b> Labz</span>
     </a>
 
     {% with vn=request.resolver_match.view_name %}
     <nav class="main-nav" id="mainNav">
       <a href="{% url 'catalog:product_list' %}" class="{% if vn == 'catalog:product_list' or vn == 'catalog:product_detail' %}active{% endif %}">Catálogo</a>
+      <a href="{% url 'catalog:models_3d' %}" class="{% if vn == 'catalog:models_3d' %}active{% endif %}">Modelos 3D</a>
+      <a href="{% url 'lithophane:editor' %}" class="{% if vn == 'lithophane:editor' %}active{% endif %}">Faça meu Lithophane</a>
       <a href="{% url 'promotions:list' %}" class="{% if vn == 'promotions:list' %}active{% endif %}">Promoções</a>
       <a href="{% url 'core:about' %}" class="{% if vn == 'core:about' or vn == 'core:home' %}active{% endif %}">Sobre</a>
       {% if user.is_authenticated and user.is_seller %}

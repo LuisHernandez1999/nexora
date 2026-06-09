@@ -33,10 +33,11 @@ class ProductAdmin(admin.ModelAdmin):
     inlines = [ProductImageInline]
     fieldsets = (
         (None, {"fields": ("category", "seller", "name", "slug", "description")}),
-        ("Preco", {"fields": ("price", "compare_at_price", "is_on_promotion")}),
+        ("Preço", {"fields": ("price", "compare_at_price", "is_on_promotion")}),
         ("Visual", {"fields": ("image", "image_url")}),
-        ("Estoque & metricas", {"fields": ("stock", "rating", "review_count", "sales_count")}),
-        ("Impressao 3D", {"fields": ("material", "dimensions", "print_time_hours")}),
+        ("Modelos 3D", {"fields": ("model_3d", "model_stl")}),
+        ("Estoque & métricas", {"fields": ("stock", "rating", "review_count", "sales_count")}),
+        ("Impressão 3D", {"fields": ("material", "dimensions", "print_time_hours")}),
         ("Flags", {"fields": ("is_featured", "is_active")}),
     )
 
